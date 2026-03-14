@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algoritmi — Corso Interattivo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,700;1,400&family=Syne:wght@400;600;800;900&display=swap');
+
+:root {
+  --bg:     #080b12;
+  --panel:  #0f1420;
+  --panel2: #141926;
+  --border: #1e2a3a;
+  --accent:  #00e5ff;
+  --accent2: #ff6b35;
+  --accent3: #a855f7;
+  --accent4: #22c55e;
+  --accent5: #facc15;
+  --text:   #cdd6f4;
+  --muted:  #5a6a8a;
+  --glow-c: 0 0 24px rgba(0,229,255,0.35);
+  --glow-o: 0 0 24px rgba(255,107,53,0.35);
+  --glow-p: 0 0 24px rgba(168,85,247,0.35);
+  --glow-g: 0 0 24px rgba(34,197,94,0.35);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Syne',sans-serif;font-size:15px;line-height:1.7;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(0,229,255,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,229,255,.022) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+.wrap{max-width:1060px;margin:0 auto;padding:20px 24px 80px;position:relative;z-index:1;}
+
+header{text-align:center;padding:44px 0 32px;border-bottom:1px solid var(--border);margin-bottom:28px;}
+.htag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;
+  padding:4px 14px;border-radius:3px;border:1px solid var(--accent);color:var(--accent);
+  background:rgba(0,229,255,.06);margin-bottom:16px;}
+h1{font-size:clamp(26px,5vw,52px);font-weight:900;line-height:1.1;margin-bottom:10px;
+  background:linear-gradient(135deg,#fff 30%,var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+header p{color:var(--muted);font-size:15px;max-width:640px;margin:0 auto;}
+
+.tabs{display:flex;gap:5px;background:var(--panel);border:1px solid var(--border);
+  border-radius:10px;padding:6px;margin-bottom:24px;flex-wrap:wrap;}
+.tab-btn{flex:1;padding:10px 6px;border:none;border-radius:7px;background:transparent;
+  color:var(--muted);cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;
+  transition:.2s;text-align:center;white-space:nowrap;min-width:80px;}
+.tab-btn:hover{color:var(--text);background:rgba(255,255,255,.05);}
+.tab-btn.active{background:var(--accent);color:#000;box-shadow:var(--glow-c);}
+.tab-btn.active.ora{background:var(--accent2);color:#fff;box-shadow:var(--glow-o);}
+.tab-btn.active.pur{background:var(--accent3);color:#fff;box-shadow:var(--glow-p);}
+.tab-btn.active.grn{background:var(--accent4);color:#000;box-shadow:var(--glow-g);}
+.tab-btn.active.yel{background:var(--accent5);color:#000;}
+
+.tab-pane{display:none;animation:fadeUp .35s ease;}
+.tab-pane.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:26px;margin-bottom:20px;}
+.card-title{font-size:19px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.card-desc{color:var(--muted);font-size:14px;margin-bottom:18px;line-height:1.7;}
+
+.badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 10px;border-radius:3px;
+  font-weight:700;letter-spacing:1px;border:1px solid;}
+.bd-c{background:rgba(0,229,255,.1);border-color:var(--accent);color:var(--accent);}
+.bd-o{background:rgba(255,107,53,.1);border-color:var(--accent2);color:var(--accent2);}
+.bd-p{background:rgba(168,85,247,.1);border-color:var(--accent3);color:var(--accent3);}
+.bd-g{background:rgba(34,197,94,.1);border-color:var(--accent4);color:var(--accent4);}
+.bd-y{background:rgba(250,204,21,.1);border-color:var(--accent5);color:var(--accent5);}
+
+.formula{background:#040608;border:1px solid var(--border);border-radius:8px;
+  padding:18px 22px;font-family:'JetBrains Mono',monospace;font-size:14px;
+  text-align:center;letter-spacing:1px;margin:14px 0;position:relative;overflow:hidden;line-height:2.2;}
+.formula::before{content:'DEFINIZIONE';position:absolute;top:5px;right:10px;
+  font-size:8px;letter-spacing:3px;color:rgba(255,255,255,.1);}
+.fc{color:var(--accent);} .fo{color:var(--accent2);} .fp{color:var(--accent3);}
+.fg{color:var(--accent4);} .fy{color:var(--accent5);}
+
+.callout{border-left:3px solid;padding:14px 18px;border-radius:0 8px 8px 0;margin:14px 0;font-size:14px;line-height:1.7;}
+.cl-c{border-color:var(--accent);background:rgba(0,229,255,.06);}
+.cl-o{border-color:var(--accent2);background:rgba(255,107,53,.06);}
+.cl-p{border-color:var(--accent3);background:rgba(168,85,247,.06);}
+.cl-g{border-color:var(--accent4);background:rgba(34,197,94,.06);}
+.cl-y{border-color:var(--accent5);background:rgba(250,204,21,.06);}
+
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px;background:#040608;
+  border:1px solid var(--border);border-radius:8px;padding:16px;line-height:2;overflow-x:auto;}
+code{font-family:'JetBrains Mono',monospace;font-size:13px;
+  background:rgba(255,255,255,.07);padding:2px 7px;border-radius:3px;}
+mark{background:rgba(0,229,255,.15);color:var(--accent);border-radius:2px;padding:1px 4px;}
+
+.step-list{margin:16px 0;}
+.step-item{display:grid;grid-template-columns:36px 1fr;gap:14px;margin-bottom:22px;align-items:start;}
+.step-n{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#000;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;flex-shrink:0;margin-top:2px;}
+.step-n.ora{background:var(--accent2);color:#fff;}
+.step-n.pur{background:var(--accent3);color:#fff;}
+.step-n.grn{background:var(--accent4);color:#000;}
+.step-n.yel{background:var(--accent5);color:#000;}
+.step-body h4{font-weight:700;margin-bottom:5px;font-size:15px;}
+.step-body p{color:var(--muted);font-size:14px;}
+
+.calc-box{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:7px;
+  padding:16px;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:2.1;}
+.cv{color:var(--accent);font-weight:700;} .co{color:var(--accent2);font-weight:700;}
+.cp{color:var(--accent3);font-weight:700;} .cg{color:var(--accent4);font-weight:700;}
+.cy{color:var(--accent5);font-weight:700;} .cm{color:var(--muted);}
+
+.btn{padding:9px 20px;border-radius:7px;border:2px solid;cursor:pointer;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;transition:.2s;
+  display:inline-flex;align-items:center;gap:7px;}
+.btn-c{background:var(--accent);color:#000;border-color:var(--accent);}
+.btn-c:hover{filter:brightness(1.15);box-shadow:var(--glow-c);}
+.btn-o{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.btn-o:hover{filter:brightness(1.15);box-shadow:var(--glow-o);}
+.btn-p{background:var(--accent3);color:#fff;border-color:var(--accent3);}
+.btn-p:hover{filter:brightness(1.15);box-shadow:var(--glow-p);}
+.btn-g{background:var(--accent4);color:#000;border-color:var(--accent4);}
+.btn-g:hover{filter:brightness(1.15);box-shadow:var(--glow-g);}
+.btn-y{background:var(--accent5);color:#000;border-color:var(--accent5);}
+.btn-y:hover{filter:brightness(1.15);}
+.btn-out{background:transparent;color:var(--text);border-color:var(--border);}
+.btn-out:hover{border-color:var(--accent);color:var(--accent);}
+.btn:disabled{opacity:.35;cursor:not-allowed;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;align-items:center;}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+@media(max-width:680px){.two-col,.three-col{grid-template-columns:1fr}.tabs{flex-wrap:wrap}}
+
+hr.div{border:none;border-top:1px solid var(--border);margin:22px 0;}
+.sec-title{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;
+  color:var(--muted);text-transform:uppercase;margin:22px 0 12px;
+  display:flex;align-items:center;gap:12px;}
+.sec-title::before,.sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;
+  background:var(--border);border-radius:3px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;
+  border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:var(--glow-c);}
+input[type=number],input[type=text]{background:var(--panel2);border:1px solid var(--border);
+  color:var(--text);border-radius:7px;padding:8px 12px;font-family:'JetBrains Mono',monospace;
+  font-size:13px;width:100%;outline:none;}
+input[type=number]:focus,input[type=text]:focus{border-color:var(--accent);}
+select{background:var(--panel2);border:1px solid var(--border);color:var(--text);
+  border-radius:7px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:13px;
+  outline:none;cursor:pointer;}
+select:focus{border-color:var(--accent);}
+table{border-collapse:collapse;width:100%;}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--border);}
+th{background:rgba(255,255,255,.04);font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:1px;color:var(--muted);}
+td{font-family:'JetBrains Mono',monospace;font-size:12px;}
+
+.quiz-opt{padding:12px 16px;border:1px solid var(--border);border-radius:8px;
+  margin:7px 0;cursor:pointer;font-size:14px;transition:.2s;background:var(--panel);}
+.quiz-opt:hover{border-color:var(--accent);color:var(--accent);}
+.quiz-opt.correct{border-color:var(--accent4);background:rgba(34,197,94,.1);color:var(--accent4);}
+.quiz-opt.wrong{border-color:var(--accent2);background:rgba(255,107,53,.1);color:var(--accent2);}
+
+canvas{display:block;}
+.canvas-wrap{position:relative;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.canvas-wrap canvas{width:100%;display:block;}
+
+.slider-row{display:flex;align-items:center;gap:12px;margin:10px 0;}
+.slider-row label{font-family:'JetBrains Mono',monospace;font-size:12px;min-width:140px;color:var(--muted);}
+.slider-row span{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);min-width:50px;}
+
+/* ARRAY VISUALIZATION */
+.arr-viz{display:flex;gap:4px;flex-wrap:wrap;margin:12px 0;align-items:flex-end;}
+.arr-cell{width:44px;min-height:44px;border:2px solid var(--border);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;
+  transition:all .3s ease;flex-shrink:0;position:relative;}
+.arr-cell.comparing{border-color:var(--accent2);background:rgba(255,107,53,.18);color:var(--accent2);box-shadow:0 0 12px rgba(255,107,53,.3);}
+.arr-cell.swapping{border-color:var(--accent3);background:rgba(168,85,247,.18);color:var(--accent3);box-shadow:0 0 12px rgba(168,85,247,.4);}
+.arr-cell.sorted{border-color:var(--accent4);background:rgba(34,197,94,.12);color:var(--accent4);}
+.arr-cell.pivot{border-color:var(--accent5);background:rgba(250,204,21,.18);color:var(--accent5);box-shadow:0 0 12px rgba(250,204,21,.3);}
+.arr-cell.active{border-color:var(--accent);background:rgba(0,229,255,.12);color:var(--accent);}
+.arr-cell .idx{position:absolute;bottom:-18px;font-size:9px;color:var(--muted);font-weight:400;}
+
+/* SEARCH HIGHLIGHT */
+.arr-cell.found{border-color:var(--accent4);background:rgba(34,197,94,.25);color:var(--accent4);
+  animation:pulse-g 1s ease infinite;}
+@keyframes pulse-g{0%,100%{box-shadow:0 0 8px rgba(34,197,94,.3)}50%{box-shadow:0 0 20px rgba(34,197,94,.7)}}
+
+/* BAR CHART */
+.bar-chart{display:flex;align-items:flex-end;gap:3px;height:160px;padding:0 4px;}
+.bar-item{flex:1;min-width:8px;border-radius:3px 3px 0 0;transition:all .25s ease;position:relative;}
+.bar-item.bar-cmp{background:var(--accent2)!important;box-shadow:0 0 8px rgba(255,107,53,.4);}
+.bar-item.bar-swp{background:var(--accent3)!important;box-shadow:0 0 8px rgba(168,85,247,.4);}
+.bar-item.bar-srt{background:var(--accent4)!important;}
+.bar-item.bar-piv{background:var(--accent5)!important;}
+
+/* GRAPH NODES */
+.graph-node{position:absolute;width:40px;height:40px;border-radius:50%;border:2px solid var(--accent);
+  background:rgba(0,229,255,.1);display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);
+  transform:translate(-50%,-50%);cursor:pointer;transition:all .3s ease;z-index:2;}
+.graph-node.visited{border-color:var(--accent4);background:rgba(34,197,94,.2);color:var(--accent4);}
+.graph-node.current{border-color:var(--accent5);background:rgba(250,204,21,.25);color:var(--accent5);
+  box-shadow:0 0 16px rgba(250,204,21,.5);}
+.graph-node.queued{border-color:var(--accent3);background:rgba(168,85,247,.15);color:var(--accent3);}
+
+/* LOG */
+.log-box{background:#040608;border:1px solid var(--border);border-radius:8px;
+  padding:12px 16px;max-height:160px;overflow-y:auto;font-family:'JetBrains Mono',monospace;
+  font-size:12px;line-height:1.9;}
+.log-box::-webkit-scrollbar{width:4px;}
+.log-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.log-line{padding:1px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+
+/* PROGRESS */
+.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:8px 0;}
+.progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .4s ease;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="htag">💻 CORSO INTERATTIVO · INFORMATICA</div>
+  <h1>Algoritmi<br>& Strutture Dati</h1>
+  <p>Dalla ricetta di cucina al cuore dell'informatica: cos'è un algoritmo, come si valuta, come ordina, cerca e naviga. Con simulazioni passo per passo.</p>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active"   onclick="goTab('int',this)">1·Intro</button>
+  <button class="tab-btn"          onclick="goTab('sto',this)">2·Storia</button>
+  <button class="tab-btn ora"      onclick="goTab('com',this)">3·Complessità</button>
+  <button class="tab-btn pur"      onclick="goTab('ric',this)">4·Ricerca</button>
+  <button class="tab-btn grn"      onclick="goTab('ord',this)">5·Ordinamento</button>
+  <button class="tab-btn yel"      onclick="goTab('gra',this)">6·Grafi</button>
+  <button class="tab-btn ora"      onclick="goTab('ric2',this)">7·Ricorsione</button>
+  <button class="tab-btn pur"      onclick="goTab('qui',this)">8·Quiz</button>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 1 — INTRODUZIONE                       -->
+<!-- ══════════════════════════════════════════ -->
+<div id="t-int" class="tab-pane active">
+<div class="card">
+  <div class="card-title"><span class="badge bd-c">INTRO</span> Cos'è un algoritmo?</div>
+  <p class="card-desc">La parola algoritmo deriva da un matematico persiano del IX secolo. Ma il concetto è vecchio quanto il pensiero umano: è una <strong>sequenza finita di istruzioni</strong> per risolvere un problema.</p>
+
+  <div class="formula">
+    <span class="fc">Algoritmo</span> = sequenza di istruzioni<br>
+    <span style="font-size:11px;color:var(--muted)">
+      <span class="fg">input</span> → [elaborazione] → <span class="fo">output</span>
+    </span>
+  </div>
+
+  <div class="sec-title">Le 5 proprietà di un buon algoritmo</div>
+  <div class="step-list">
+    <div class="step-item">
+      <div class="step-n">1</div>
+      <div class="step-body">
+        <h4>Finitezza</h4>
+        <p>Deve terminare dopo un numero finito di passi. Un algoritmo che gira all'infinito non risolve nulla.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-n">2</div>
+      <div class="step-body">
+        <h4>Definitezza</h4>
+        <p>Ogni istruzione deve essere precisa e non ambigua. "Aggiungi un po' di sale" non è un'istruzione algoritmica.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-n grn">3</div>
+      <div class="step-body">
+        <h4>Input e Output</h4>
+        <p>Prende zero o più input e produce almeno un output. Senza output non c'è risultato.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-n ora">4</div>
+      <div class="step-body">
+        <h4>Efficacia</h4>
+        <p>Ogni passo deve essere fattibile concretamente (non "trova il numero più grande dell'universo").</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-n pur">5</div>
+      <div class="step-body">
+        <h4>Generalità</h4>
+        <p>Deve funzionare per tutti i casi del problema, non solo per un esempio specifico.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+  <div class="sec-title">Algoritmo della vita reale — la ricetta</div>
+  <div class="two-col">
+    <div>
+      <div class="callout cl-c">
+        <strong>🍝 Ricetta = Algoritmo</strong><br>
+        Una ricetta è esattamente un algoritmo: ha un <mark>input</mark> (ingredienti), una sequenza di <mark>istruzioni</mark> (passaggi), e produce un <mark>output</mark> (il piatto). È finita, definitiva e general-purpose.
+      </div>
+      <div class="callout cl-o" style="margin-top:12px">
+        <strong>🗺 GPS = Algoritmo di ricerca</strong><br>
+        Quando il navigatore trova il percorso più breve da A a B, sta eseguendo un algoritmo (Dijkstra o A*) su un grafo stradale con milioni di nodi.
+      </div>
+      <div class="callout cl-g" style="margin-top:12px">
+        <strong>🔍 Google = Algoritmo di ranking</strong><br>
+        PageRank — inventato da Larry Page nel 1998 — assegna un punteggio a ogni pagina web contando i link in entrata. È un algoritmo iterativo che converge in pochi passi.
+      </div>
+    </div>
+    <div>
+      <div class="sec-title">Pseudocodice: somma di una lista</div>
+      <div class="mono">
+<span class="cv">ALGORITMO</span> SommaLista(A)<br>
+<span class="cm">  // Input: lista A di n numeri</span><br>
+<span class="cm">  // Output: somma di tutti gli elementi</span><br>
+<br>
+&nbsp;&nbsp;somma ← <span class="cy">0</span><br>
+&nbsp;&nbsp;<span class="cv">PER</span> i ← 0 <span class="cv">FINO A</span> n-1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;somma ← somma + <span class="fg">A[i]</span><br>
+&nbsp;&nbsp;<span class="cv">FINE PER</span><br>
+&nbsp;&nbsp;<span class="cv">RESTITUISCI</span> <span class="co">somma</span>
+      </div>
+      <div class="calc-box" id="sum-demo">
+        <span class="cm">// premi il bottone per simulare</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-c" onclick="runSumDemo()">▶ Simula passo per passo</button>
+        <button class="btn btn-out" onclick="resetSumDemo()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+  <div class="sec-title">Rappresentazioni di un algoritmo</div>
+  <div class="three-col">
+    <div class="card" style="margin:0">
+      <div class="card-title" style="font-size:15px"><span class="badge bd-c">TESTO</span></div>
+      <p style="font-size:13px;color:var(--muted)">Linguaggio naturale. Facile da capire, ma ambiguo. Usato per descrivere ad alto livello.</p>
+    </div>
+    <div class="card" style="margin:0">
+      <div class="card-title" style="font-size:15px"><span class="badge bd-o">DIAGRAMMA</span></div>
+      <p style="font-size:13px;color:var(--muted)">Flowchart con forme standardizzate (rettangoli, rombi, ovali). Visuale, ottimo per capire il flusso.</p>
+    </div>
+    <div class="card" style="margin:0">
+      <div class="card-title" style="font-size:15px"><span class="badge bd-g">PSEUDOCODICE</span></div>
+      <p style="font-size:13px;color:var(--muted)">Via di mezzo tra linguaggio naturale e codice. Preciso ma indipendente dal linguaggio.</p>
+    </div>
+  </div>
+</div>
+</div><!-- /tab-pane -->
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 2 — STORIA                             -->
+<!-- ══════════════════════════════════════════ -->
+<div id="t-sto" class="tab-pane">
+<div class="card">
+  <div class="card-title"><span class="badge bd-c">STORIA</span> 4000 anni di algoritmi</div>
+  <p class="card-desc">Gli algoritmi non sono nati con i computer. I Babilonesi, Euclide, Al-Khwarizmi, Babbage, Turing — ognuno ha aggiunto un mattone. Il computer moderno è l'ultimo capitolo di una storia lunghissima.</p>
+
+  <div class="sec-title">La timeline degli algoritmi</div>
+  <div id="timeline-wrap"></div>
+</div>
+
+<div class="card">
+  <div class="card-title"><span class="badge bd-o">FOCUS</span> Al-Khwarizmi — il padre degli algoritmi</div>
+  <p class="card-desc">La parola <em>algoritmo</em> deriva dalla latinizzazione del nome <strong>Muḥammad ibn Mūsā al-Khwārizmī</strong> (780–850 d.C.), matematico persiano di Bagdad. La parola <em>algebra</em> viene dal titolo del suo libro più famoso.</p>
+  <div class="two-col">
+    <div>
+      <div class="callout cl-o">
+        <strong>📖 Il Kitāb al-mukhtaṣar</strong><br>
+        Nel 825 d.C. al-Khwarizmi scrisse il primo trattato sistematico di risoluzione di equazioni lineari e quadratiche. Traduzioni latine medievali introdussero in Europa sia il concetto di algebra che il sistema di numerazione decimale arabo.
+      </div>
+      <div class="callout cl-c" style="margin-top:12px">
+        <strong>🔢 I numeri arabi</strong><br>
+        Al-Khwarizmi scrisse anche un trattato sul sistema di numerazione indiano (0,1,2...9). Il titolo latino iniziava con "Algoritmi de numero..." — da qui la parola algoritmo.
+      </div>
+    </div>
+    <div>
+      <div class="callout cl-g">
+        <strong>🕰 Prima di lui: Euclide</strong><br>
+        Circa 300 a.C., Euclide descrisse il primo algoritmo della storia documentata: il <mark>Massimo Comun Divisore</mark>. È ancora usato oggi, quasi identico, in crittografia e teoria dei numeri.
+      </div>
+      <div class="mono" style="margin-top:12px">
+<span class="cm">// MCD di Euclide (~300 a.C.)</span><br>
+<span class="cv">ALGORITMO</span> MCD(a, b)<br>
+&nbsp;&nbsp;<span class="cv">MENTRE</span> b ≠ <span class="cy">0</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;t ← b<br>
+&nbsp;&nbsp;&nbsp;&nbsp;b ← a <span class="co">mod</span> b<br>
+&nbsp;&nbsp;&nbsp;&nbsp;a ← t<br>
+&nbsp;&nbsp;<span class="cv">RESTITUISCI</span> <span class="fg">a</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><span class="badge bd-p">FOCUS</span> Ada Lovelace & Alan Turing</div>
+  <div class="two-col">
+    <div>
+      <div class="callout cl-p">
+        <strong>👩 Ada Lovelace (1815–1852)</strong><br>
+        Figlia di Lord Byron, scrisse nel 1843 quello che è considerato il <strong>primo programma della storia</strong>: un algoritmo per calcolare i numeri di Bernoulli con la Macchina Analitica di Babbage. Riconobbe che la macchina poteva elaborare qualsiasi cosa rappresentabile simbolicamente — non solo numeri.
+      </div>
+    </div>
+    <div>
+      <div class="callout cl-c">
+        <strong>🧠 Alan Turing (1912–1954)</strong><br>
+        Nel 1936 pubblicò il paper che definì formalmente cosa significa <em>calcolare</em>. La <mark>Macchina di Turing</mark> è un modello teorico che può simulare qualsiasi algoritmo. Il <strong>Problema della Fermata</strong> dimostrò che esistono problemi non risolvibili algoritmicamente — un limite teorico fondamentale.
+      </div>
+    </div>
+  </div>
+  <div class="callout cl-g" style="margin-top:12px">
+    <strong>⚡ La svolta pratica: 1940-1950</strong><br>
+    ENIAC (1945), il primo computer elettronico generale, eseguiva circa 5.000 operazioni al secondo. Il tuo smartphone ne esegue circa 15 <strong>miliardi</strong> al secondo. Ma gli algoritmi che girano su entrambi seguono gli stessi principi matematici che Turing aveva descritto nel 1936.
+  </div>
+</div>
+</div><!-- /tab-pane -->
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 3 — COMPLESSITÀ                        -->
+<!-- ══════════════════════════════════════════ -->
+<div id="t-com" class="tab-pane">
+<div class="card">
+  <div class="card-title"><span class="badge bd-o">COMPLESSITÀ</span> Quanto è veloce un algoritmo?</div>
+  <p class="card-desc">Due algoritmi possono risolvere lo stesso problema — ma uno impiega 1 secondo, l'altro 10 anni. La <strong>complessità computazionale</strong> misura come cresce il tempo (o la memoria) al crescere dell'input.</p>
+
+  <div class="formula">
+    <span class="fo">O(f(n))</span> = notazione "O-grande"<br>
+    <span style="font-size:11px;color:var(--muted)">descrive il comportamento nel caso peggiore al crescere di <span class="fg">n</span></span>
+  </div>
+
+  <div class="sec-title">Le classi di complessità più comuni</div>
+  <div id="complexity-cards"></div>
+
+  <hr class="div">
+  <div class="sec-title">Visualizzazione interattiva — crescita delle funzioni</div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Muovi il cursore per vedere come cambia il numero di operazioni al crescere di n. Nota come O(n²) esplode rispetto a O(n log n).</p>
+  <div class="slider-row">
+    <label>Dimensione input n:</label>
+    <input type="range" min="1" max="100" value="20" id="sl-n" oninput="updateComplexity()">
+    <span id="v-n" class="cv">20</span>
+  </div>
+  <div id="complexity-bars"></div>
+  <div class="calc-box" id="complexity-info" style="margin-top:10px"></div>
+</div>
+
+<div class="card">
+  <div class="card-title"><span class="badge bd-o">CASO PRATICO</span> Perché la complessità conta davvero</div>
+  <p class="card-desc">Considera un'agenda con <strong>n = 1.000.000</strong> di contatti. Cerchi un nome specifico. Quante operazioni servono?</p>
+  <div id="practical-table"></div>
+  <div class="callout cl-o" style="margin-top:16px">
+    💡 <strong>La differenza è enorme.</strong> O(log n) con n = 1.000.000 significa solo ~20 confronti. O(n²) significherebbe 10¹² operazioni — su un computer moderno ci vorrebbero <mark>giorni</mark>.
+  </div>
+</div>
+</div><!-- /tab-pane -->
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 4 — RICERCA                            -->
+<!-- ══════════════════════════════════════════ -->
+<div id="t-ric" class="tab-pane">
+<div class="card">
+  <div class="card-title"><span class="badge bd-p">RICERCA</span> Come trova un algoritmo un elemento?</div>
+  <p class="card-desc">Due strategie fondamentali: <strong>ricerca lineare</strong> (controlla uno per uno) e <strong>ricerca binaria</strong> (dimezza ogni volta lo spazio di ricerca). La seconda richiede che l'array sia ordinato.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="callout cl-c"><strong>🔍 Ricerca Lineare — O(n)</strong><br>Scorre l'array dall'inizio alla fine. Funziona su qualsiasi array, ordinato o no. Nel caso peggiore guarda tutti gli n elementi.</div>
+      <div class="mono" style="margin-top:10px">
+<span class="cv">ALGORITMO</span> RicercaLineare(A, x)<br>
+&nbsp;&nbsp;<span class="cv">PER</span> i ← 0 <span class="cv">FINO A</span> n-1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">SE</span> <span class="fg">A[i]</span> = <span class="cy">x</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">RESTITUISCI</span> <span class="co">i</span><br>
+&nbsp;&nbsp;<span class="cv">RESTITUISCI</span> <span class="co">-1</span>
+      </div>
+    </div>
+    <div>
+      <div class="callout cl-p"><strong>⚡ Ricerca Binaria — O(log n)</strong><br>Confronta con il centro. Se uguale: trovato. Se minore: cerca a sinistra. Se maggiore: cerca a destra. Ogni passo dimezza l'area.</div>
+      <div class="mono" style="margin-top:10px">
+<span class="cv">ALGORITMO</span> RicercaBinaria(A, x)<br>
+&nbsp;&nbsp;sx ← 0 ; dx ← n-1<br>
+&nbsp;&nbsp;<span class="cv">MENTRE</span> sx ≤ dx<br>
+&nbsp;&nbsp;&nbsp;&nbsp;mid ← (sx + dx) / 2<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">SE</span> <span class="fg">A[mid]</span> = <span class="cy">x</span> → <span class="cv">RESTITUISCI</span> <span class="co">mid</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">SE</span> <span class="fg">A[mid]</span> &lt; <span class="cy">x</span> → sx ← mid+1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">ALTRIMENTI</span> → dx ← mid-1<br>
+&nbsp;&nbsp;<span class="cv">RESTITUISCI</span> <span class="co">-1</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><span class="badge bd-p">SIMULATORE</span> Ricerca interattiva</div>
+  <p class="card-desc">Inserisci un numero da cercare e scegli il tipo di ricerca. Osserva passo per passo cosa succede all'array.</p>
+  <div class="two-col" style="margin-bottom:16px">
+    <div>
+      <label style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:6px">NUMERO DA CERCARE</label>
+      <input type="number" id="search-val" value="37" min="1" max="99">
+    </div>
+    <div>
+      <label style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:6px">TIPO DI RICERCA</label>
+      <select id="search-type">
+        <option value="linear">Ricerca Lineare</option>
+        <option value="binary">Ricerca Binaria (array ordinato)</option>
+      </select>
+    </div>
+  </div>
+  <div id="search-arr" class="arr-viz" style="padding:8px 0 28px"></div>
+  <div class="btn-row">
+    <button class="btn btn-p" id="btn-search-step" onclick="stepSearch()">▶ Passo successivo</button>
+    <button class="btn btn-out" onclick="initSearch()">↺ Nuovo array</button>
+  </div>
+  <div class="log-box" id="search-log"><span class="cm">// premi "Passo successivo" per iniziare</span></div>
+  <div class="calc-box" id="search-stats" style="margin-top:10px">
+    <span class="cm">// statistiche ricerca</span>
+  </div>
+</div>
+</div><!-- /tab-pane -->
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 5 — ORDINAMENTO                        -->
+<!-- ══════════════════════════════════════════ -->
+<div id="t-ord" class="tab-pane">
+<div class="card">
+  <div class="card-title"><span class="badge bd-g">ORDINAMENTO</span> Come ordina un algoritmo?</div>
+  <p class="card-desc">L'ordinamento è uno dei problemi più studiati in informatica. Esistono decine di algoritmi — ognuno con diversi compromessi tra velocità, memoria e semplicità.</p>
+
+  <div id="sort-complexity-table"></div>
+
+  <hr class="div">
+  <div class="sec-title">Seleziona algoritmo e velocità</div>
+  <div class="two-col">
+    <div>
+      <label style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:6px">ALGORITMO</label>
+      <select id="sort-algo" onchange="initSort()">
+        <option value="bubble">Bubble Sort — O(n²)</option>
+        <option value="selection">Selection Sort — O(n²)</option>
+        <option value="insertion">Insertion Sort — O(n²)</option>
+        <option value="merge">Merge Sort — O(n log n)</option>
+        <option value="quick">Quick Sort — O(n log n) medio</option>
+      </select>
+    </div>
+    <div>
+      <div class="slider-row" style="margin-top:22px">
+        <label>Velocità animazione:</label>
+        <input type="range" min="50" max="1000" value="400" id="sl-speed" oninput="updateSpeed()">
+        <span id="v-speed" class="cv">400ms</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><span class="badge bd-g">VISUALIZZATORE</span> Simulazione ordinamento</div>
+  <div id="sort-arr" class="arr-viz" style="padding:8px 0 28px"></div>
+  <div class="canvas-wrap" style="background:#040608;margin-bottom:14px;">
+    <canvas id="sort-canvas" height="200"></canvas>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-g" id="btn-sort-play" onclick="toggleSort()">▶ Avvia</button>
+    <button class="btn btn-out" onclick="initSort()">↺ Nuovo array</button>
+    <button class="btn btn-out" onclick="stepSortOnce()">⏭ 1 passo</button>
+  </div>
+  <div id="sort-stats" class="calc-box">
+    <span class="cm">// premi Avvia per iniziare</span>
+  </div>
+  <div class="log-box" id="sort-log" style="margin-top:10px"><span class="cm">// log passi</span></div>
+  <hr class="div">
+  <div id="sort-explain" class="callout cl-g"></div>
+</div>
+</div><!-- /tab-pane -->
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 6 — GRAFI                              -->
+<!-- ══════════════════════════════════════════ -->
+<div id="t-gra" class="tab-pane">
+<div class="card">
+  <div class="card-title"><span class="badge bd-y">GRAFI</span> Navigare reti e mappe</div>
+  <p class="card-desc">Un <strong>grafo</strong> è una struttura fatta di <mark>nodi</mark> (vertici) collegati da <mark>archi</mark> (spigoli). Internet, reti sociali, mappe stradali, strutture molecolari — sono tutti grafi.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="callout cl-y">
+        <strong>🌐 BFS — Breadth-First Search</strong><br>
+        Visita tutti i nodi a distanza 1 dal punto di partenza, poi tutti a distanza 2, poi 3... Come un'onda che si espande. Trova il percorso più breve (in numero di archi).
+      </div>
+      <div class="mono" style="margin-top:10px;font-size:11px">
+<span class="cv">BFS</span>(grafo G, sorgente s):<br>
+&nbsp;&nbsp;coda ← [s] ; visitati ← {s}<br>
+&nbsp;&nbsp;<span class="cv">MENTRE</span> coda non vuota<br>
+&nbsp;&nbsp;&nbsp;&nbsp;v ← coda.<span class="co">estrai_fronte</span>()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">PER</span> u <span class="cv">IN</span> vicini(v)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">SE</span> u non visitato<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;visitati.aggiungi(u)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;coda.aggiungi(u)
+      </div>
+    </div>
+    <div>
+      <div class="callout cl-o">
+        <strong>🔎 DFS — Depth-First Search</strong><br>
+        Esplora il più in profondità possibile lungo ogni ramo prima di tornare indietro. Come un labirinto: segui il filo fino al fondo, poi backtrack. Usa uno stack (o la ricorsione).
+      </div>
+      <div class="mono" style="margin-top:10px;font-size:11px">
+<span class="cv">DFS</span>(grafo G, nodo v, visitati):<br>
+&nbsp;&nbsp;visitati.aggiungi(v)<br>
+&nbsp;&nbsp;<span class="cv">PER</span> u <span class="cv">IN</span> vicini(v)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">SE</span> u non in visitati<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">DFS</span>(G, u, visitati)<br>
+<br>
+<span class="cm">// DFS è naturalmente ricorsivo</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><span class="badge bd-y">SIMULATORE</span> BFS e DFS sul grafo</div>
+  <p class="card-desc">Clicca su un nodo per impostarlo come sorgente, poi scegli l'algoritmo e premi Avvia. I nodi cambiano colore: <span style="color:var(--accent5)">■ in coda</span>, <span style="color:var(--accent4)">■ visitato</span>, <span style="color:var(--accent2)">■ corrente</span>.</p>
+
+  <div class="btn-row">
+    <select id="graph-algo">
+      <option value="bfs">BFS — Breadth-First Search</option>
+      <option value="dfs">DFS — Depth-First Search</option>
+    </select>
+    <button class="btn btn-y" id="btn-graph-start" onclick="stepGraph()">▶ Passo</button>
+    <button class="btn btn-out" onclick="resetGraph()">↺ Reset</button>
+    <button class="btn btn-out" onclick="autoGraph()">⚡ Auto</button>
+  </div>
+
+  <div class="canvas-wrap" style="background:#040608;margin-bottom:14px;position:relative;" id="graph-wrap">
+    <canvas id="graph-canvas" height="360"></canvas>
+    <div id="graph-nodes-layer" style="position:absolute;inset:0;pointer-events:none;"></div>
+  </div>
+
+  <div class="log-box" id="graph-log"><span class="cm">// clicca un nodo per impostare la sorgente</span></div>
+  <div class="calc-box" id="graph-stats" style="margin-top:10px"><span class="cm">// statistiche visita</span></div>
+</div>
+</div><!-- /tab-pane -->
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 7 — RICORSIONE                         -->
+<!-- ══════════════════════════════════════════ -->
+<div id="t-ric2" class="tab-pane">
+<div class="card">
+  <div class="card-title"><span class="badge bd-o">RICORSIONE</span> Una funzione che chiama se stessa</div>
+  <p class="card-desc">La ricorsione è uno dei concetti più eleganti e potenti dell'informatica. Una funzione <strong>ricorsiva</strong> risolve un problema dividendolo in sottoproblemi più piccoli della stessa natura.</p>
+
+  <div class="formula">
+    f(n) = <span class="fo">caso_base</span> &nbsp;oppure&nbsp; f(<span class="fg">n-1</span>) + <span class="fc">qualcosa</span><br>
+    <span style="font-size:11px;color:var(--muted)">ogni chiamata ricorsiva avvicina al caso base</span>
+  </div>
+
+  <div class="callout cl-o">
+    ⚠️ <strong>Senza caso base, la ricorsione non termina mai</strong> — si genera un overflow dello stack (troppe chiamate annidate). Il caso base è la condizione che "ferma" la discesa ricorsiva.
+  </div>
+
+  <hr class="div">
+  <div class="sec-title">Esempio 1 — Fattoriale</div>
+  <div class="two-col">
+    <div>
+      <div class="mono">
+<span class="cv">ALGORITMO</span> Fattoriale(n)<br>
+&nbsp;&nbsp;<span class="cv">SE</span> n = <span class="cy">0</span> <span class="cm">// caso base</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">RESTITUISCI</span> <span class="cy">1</span><br>
+&nbsp;&nbsp;<span class="cv">ALTRIMENTI</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">RESTITUISCI</span> n × <span class="co">Fattoriale</span>(n-1)
+      </div>
+      <div class="callout cl-c" style="margin-top:10px">
+        5! = 5 × 4! = 5 × 4 × 3! = 5×4×3×2×1×1 = <mark>120</mark>
+      </div>
+    </div>
+    <div>
+      <label style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:6px">CALCOLA n!</label>
+      <input type="number" id="fact-n" value="6" min="0" max="15" style="margin-bottom:12px">
+      <button class="btn btn-o" onclick="runFactorial()" style="width:100%;justify-content:center">▶ Mostra stack delle chiamate</button>
+      <div id="fact-stack" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <hr class="div">
+  <div class="sec-title">Esempio 2 — Fibonacci</div>
+  <div class="two-col">
+    <div>
+      <div class="mono">
+<span class="cv">ALGORITMO</span> Fibonacci(n)<br>
+&nbsp;&nbsp;<span class="cv">SE</span> n ≤ <span class="cy">1</span> <span class="cv">RESTITUISCI</span> n <span class="cm">// caso base</span><br>
+&nbsp;&nbsp;<span class="cv">RESTITUISCI</span> <span class="co">Fib</span>(n-1) + <span class="co">Fib</span>(n-2)
+      </div>
+      <div class="callout cl-y" style="margin-top:10px">
+        ⚠️ Questa versione ha complessità <mark>O(2ⁿ)</mark> — pessima! Con n=40 fa ~1 miliardo di chiamate. La versione iterativa (o con memoization) è O(n).
+      </div>
+    </div>
+    <div>
+      <label style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:6px">VISUALIZZA ALBERO FIBONACCI</label>
+      <input type="number" id="fib-n" value="5" min="1" max="8" style="margin-bottom:12px">
+      <button class="btn btn-o" onclick="drawFibTree()" style="width:100%;justify-content:center">▶ Disegna albero delle chiamate</button>
+      <div class="canvas-wrap" style="background:#040608;margin-top:12px;">
+        <canvas id="fib-canvas" height="260"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+  <div class="sec-title">Ricorsione vs Iterazione — confronto</div>
+  <div class="three-col">
+    <div class="callout cl-c">
+      <strong>📐 Eleganza</strong><br>
+      La ricorsione spesso produce codice più breve e leggibile per problemi naturalmente ricorsivi (alberi, grafi, divide-et-impera).
+    </div>
+    <div class="callout cl-o">
+      <strong>💾 Memoria</strong><br>
+      Ogni chiamata ricorsiva usa spazio nello stack. Per n molto grande rischia stack overflow. L'iterazione usa memoria O(1).
+    </div>
+    <div class="callout cl-g">
+      <strong>⚡ Velocità</strong><br>
+      Con memoization (cache dei risultati già calcolati) la ricorsione può essere veloce quanto l'iterazione. Questa tecnica si chiama <mark>programmazione dinamica</mark>.
+    </div>
+  </div>
+</div>
+</div><!-- /tab-pane -->
+
+<!-- ══════════════════════════════════════════ -->
+<!-- TAB 8 — QUIZ                               -->
+<!-- ══════════════════════════════════════════ -->
+<div id="t-qui" class="tab-pane">
+<div class="card">
+  <div class="card-title"><span class="badge bd-p">QUIZ FINALE</span> Metti alla prova le tue conoscenze</div>
+  <p class="card-desc">10 domande sugli algoritmi — dalla definizione alla complessità, dalla ricerca all'ordinamento. Leggi bene le spiegazioni dopo ogni risposta.</p>
+  <div id="quiz-result" style="display:none;padding:16px;border-radius:8px;background:rgba(34,197,94,.1);
+    border:1px solid var(--accent4);color:var(--accent4);margin-bottom:16px;font-size:14px;line-height:1.7;"></div>
+  <div id="quiz-body"></div>
+</div>
+</div><!-- /tab-pane -->
+
+</div><!-- /wrap -->
+<script>
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+const inited={};
+function goTab(id,btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('t-'+id).classList.add('active');
+  const classes=['active'];
+  if(btn.classList.contains('ora'))classes.push('ora');
+  if(btn.classList.contains('pur'))classes.push('pur');
+  if(btn.classList.contains('grn'))classes.push('grn');
+  if(btn.classList.contains('yel'))classes.push('yel');
+  btn.className='tab-btn '+classes.join(' ');
+  if(!inited[id]){inited[id]=true;initTab(id);}
+}
+function initTab(id){
+  if(id==='sto')initTimeline();
+  if(id==='com'){initComplexityCards();updateComplexity();initPracticalTable();}
+  if(id==='ric')initSearch();
+  if(id==='ord')initSort();
+  if(id==='gra')initGraph();
+  if(id==='ric2'){initFactView();drawFibTree();}
+  if(id==='qui')initQuiz();
+}
+
+// ═══════════════════════════════════════════════════
+// TAB 1 — SOMMA DEMO
+// ═══════════════════════════════════════════════════
+const sumArr=[3,7,2,9,4];let sumStep=0,sumTotal=0,sumRunning=false,sumTimer=null;
+function runSumDemo(){
+  if(sumRunning)return;
+  sumRunning=true;
+  sumStep=0;sumTotal=0;
+  const box=document.getElementById('sum-demo');
+  function step(){
+    if(sumStep>=sumArr.length){
+      box.innerHTML=`<span class="cg">// COMPLETATO</span><br>somma = <span class="cy">${sumTotal}</span> <span class="cm">← risultato finale</span>`;
+      sumRunning=false;return;
+    }
+    sumTotal+=sumArr[sumStep];
+    const log=sumArr.map((v,i)=>`<span style="color:${i<sumStep?'var(--accent4)':i===sumStep?'var(--accent2)':'var(--muted)'}">${v}</span>`).join(' + ');
+    box.innerHTML=`i = <span class="cv">${sumStep}</span> &nbsp;A[${sumStep}] = <span class="co">${sumArr[sumStep]}</span><br>${log}<br>somma = <span class="cy">${sumTotal}</span>`;
+    sumStep++;
+    sumTimer=setTimeout(step,700);
+  }
+  step();
+}
+function resetSumDemo(){
+  clearTimeout(sumTimer);sumRunning=false;sumStep=0;sumTotal=0;
+  document.getElementById('sum-demo').innerHTML='<span class="cm">// premi il bottone per simulare</span>';
+}
+
+// ═══════════════════════════════════════════════════
+// TAB 2 — TIMELINE
+// ═══════════════════════════════════════════════════
+function initTimeline(){
+  const events=[
+    {y:'~1800 a.C.',t:'Tavolette babilonesi',d:'I Babilonesi descrissero algoritmi per radici quadrate e divisioni su tavolette di argilla. Primo esempio documentato di procedura algoritmica sistematica.',c:'c'},
+    {y:'~300 a.C.',t:'Euclide e il MCD',d:'Euclide descrive negli "Elementi" l\'algoritmo per il Massimo Comun Divisore. È il primo algoritmo formale della storia e viene ancora usato oggi in crittografia.',c:'g'},
+    {y:'~250 a.C.',t:'Crivello di Eratostene',d:'Per trovare tutti i numeri primi fino a N: scrivi tutti i numeri, poi cancella i multipli di 2, poi di 3, poi di 5... Quello che resta sono i primi.',c:'p'},
+    {y:'825 d.C.',t:'Al-Khwarizmi',d:'Il matematico persiano scrive il trattato da cui deriva la parola "algoritmo". Introduce in Europa l\'algebra e il sistema decimale posizionale.',c:'o'},
+    {y:'1843',t:'Ada Lovelace',d:'Scrive il primo programma della storia per la Macchina Analitica di Babbage — per calcolare i numeri di Bernoulli. Riconosce che le macchine possono elaborare simboli, non solo numeri.',c:'p'},
+    {y:'1936',t:'Alan Turing',d:'Pubblica "On Computable Numbers": definisce formalmente la computazione con la Macchina di Turing. Dimostra l\'esistenza del Problema della Fermata: non tutto è calcolabile.',c:'c'},
+    {y:'1945',t:'ENIAC',d:'Primo computer elettronico generale. 5.000 op/secondo, 30 tonnellate. Von Neumann formalizza l\'architettura a programma memorizzato che è ancora alla base di ogni CPU moderna.',c:'y'},
+    {y:'1959',t:'Quicksort',d:'Tony Hoare inventa Quicksort — ancora oggi uno degli algoritmi di ordinamento più usati al mondo. Caso medio O(n log n), implementato in quasi tutti i linguaggi.',c:'g'},
+    {y:'1969',t:'ARPANET',d:'La prima rete a pacchetti: i dati viaggiano come pacchetti instradati con algoritmi di routing. È il nonno di Internet. Nasce l\'esigenza di algoritmi su grafi per trovare percorsi ottimi.',c:'o'},
+    {y:'1998',t:'PageRank',d:'Larry Page e Sergey Brin inventano PageRank per Google. Un algoritmo iterativo che assegna importanza alle pagine web contando e pesando i link. Trasforma la ricerca.',c:'c'},
+    {y:'2017',t:'Transformer (Attenzione)',d:'Google pubblica "Attention Is All You Need". L\'architettura Transformer è alla base di ChatGPT, Claude e tutti i grandi modelli linguistici. Un nuovo tipo di algoritmo per sequenze.',c:'p'},
+  ];
+  const w=document.getElementById('timeline-wrap');
+  w.innerHTML=events.map((e,i)=>`
+    <div style="display:grid;grid-template-columns:90px 20px 1fr;gap:0 16px;margin-bottom:0;align-items:stretch">
+      <div style="text-align:right;padding-top:3px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent${e.c==='c'?'':e.c==='g'?'4':e.c==='p'?'3':e.c==='o'?'2':'5'});font-weight:700">${e.y}</div>
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div style="width:12px;height:12px;border-radius:50%;background:var(--accent${e.c==='c'?'':e.c==='g'?'4':e.c==='p'?'3':e.c==='o'?'2':'5'});flex-shrink:0;margin-top:4px;box-shadow:0 0 8px rgba(0,229,255,.4)"></div>
+        ${i<events.length-1?`<div style="flex:1;width:2px;background:var(--border);margin:4px 0"></div>`:''}
+      </div>
+      <div style="padding-bottom:22px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px">${e.t}</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">${e.d}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// TAB 3 — COMPLESSITÀ
+// ═══════════════════════════════════════════════════
+const COMPLEXITIES=[
+  {name:'O(1)',label:'Costante',color:'var(--accent4)',fn:n=>1,desc:'Accesso a un elemento di un array per indice. Sempre 1 operazione, indipendentemente da n.',ex:'A[5]'},
+  {name:'O(log n)',label:'Logaritmica',color:'var(--accent)',fn:n=>Math.log2(n),desc:'Ricerca binaria. Ogni passo dimezza lo spazio. Con n=1.000.000 bastano ~20 passi.',ex:'Ricerca binaria'},
+  {name:'O(n)',label:'Lineare',color:'var(--accent5)',fn:n=>n,desc:'Ricerca lineare. Scorre tutti gli n elementi. Raddoppiando n, raddoppia il tempo.',ex:'Ricerca lineare, somma array'},
+  {name:'O(n log n)',label:'Linearitmica',color:'var(--accent3)',fn:n=>n*Math.log2(n),desc:'Merge Sort, Heap Sort. Il limite inferiore per gli algoritmi di ordinamento basati su confronti.',ex:'Merge Sort, Quick Sort medio'},
+  {name:'O(n²)',label:'Quadratica',color:'var(--accent2)',fn:n=>n*n,desc:'Bubble Sort, Selection Sort. Due cicli annidati. Con n=1000 fa 1.000.000 di operazioni.',ex:'Bubble Sort, doppio ciclo'},
+  {name:'O(2ⁿ)',label:'Esponenziale',color:'#ef4444',fn:n=>Math.pow(2,n),desc:'Fibonacci ricorsivo naif. Cresce a dismisura. Con n=30 fa già > 1 miliardo di chiamate.',ex:'Fibonacci ricorsivo, subset sum'},
+];
+
+function initComplexityCards(){
+  const el=document.getElementById('complexity-cards');
+  el.innerHTML=`<div class="three-col">${COMPLEXITIES.map(c=>`
+    <div class="card" style="margin:0;border-color:${c.color}22">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:${c.color};margin-bottom:4px">${c.name}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">${c.label}</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:8px">${c.desc}</div>
+      <code style="font-size:11px">${c.ex}</code>
+    </div>
+  `).join('')}</div>`;
+}
+
+function updateComplexity(){
+  const n=parseInt(document.getElementById('sl-n').value);
+  document.getElementById('v-n').textContent=n;
+  const maxVal=n*n;
+  const bars=COMPLEXITIES.map(c=>{
+    const val=c.fn(n);
+    const pct=Math.min(100,(val/maxVal)*100);
+    const disp=val>=1e9?'> miliardo':val>=1e6?(val/1e6).toFixed(1)+'M':val>=1e3?(val/1e3).toFixed(1)+'K':val.toFixed(1);
+    return `<div class="bar-row">
+      <div class="bar-lbl" style="color:${c.color};min-width:90px">${c.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(1,pct)}%;background:${c.color}">${disp}</div></div>
+    </div>`;
+  });
+  document.getElementById('complexity-bars').innerHTML=bars.join('');
+  document.getElementById('complexity-info').innerHTML=
+    COMPLEXITIES.map(c=>`<span style="color:${c.color}">${c.name}</span> → <span class="cy">${
+      c.fn(n)>=1e9?'> 10⁹':c.fn(n)>=1e6?(c.fn(n)/1e6).toFixed(2)+'M':c.fn(n)>=1e3?(c.fn(n)/1e3).toFixed(1)+'K':c.fn(n).toFixed(2)
+    } op</span>`).join('&nbsp;&nbsp;|&nbsp;&nbsp;');
+}
+document.head.insertAdjacentHTML('beforeend','<style>.bar-row{display:flex;align-items:center;gap:10px;margin:6px 0}.bar-lbl{font-family:\'JetBrains Mono\',monospace;font-size:12px;min-width:90px}.bar-track{flex:1;height:22px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;border:1px solid var(--border)}.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:#000;font-weight:700;transition:width .5s ease;min-width:4px}</style>');
+
+function initPracticalTable(){
+  const n=1000000;
+  const rows=[
+    ['O(1)','1','~0.000001 ms','Accesso array diretto'],
+    ['O(log n)','~20','~0.00002 ms','Ricerca binaria'],
+    ['O(n)','1.000.000','~1 ms','Ricerca lineare'],
+    ['O(n log n)','~20.000.000','~20 ms','Merge sort'],
+    ['O(n²)','10¹²','~10 minuti','Bubble sort'],
+    ['O(2ⁿ)','> 10³⁰⁰.⁰⁰⁰','> età universo','Fibonacci naif'],
+  ];
+  document.getElementById('practical-table').innerHTML=`
+    <p style="font-size:13px;color:var(--muted);margin-bottom:10px">n = 1.000.000 | CPU: 10⁹ operazioni/secondo</p>
+    <table>
+      <thead><tr><th>Complessità</th><th>Operazioni</th><th>Tempo stimato</th><th>Esempio</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table>`;
+}
+
+// ═══════════════════════════════════════════════════
+// TAB 4 — RICERCA
+// ═══════════════════════════════════════════════════
+let searchArr=[],searchStep=0,searchDone=false,searchOps=0;
+function initSearch(){
+  const arr=Array.from({length:14},()=>Math.floor(Math.random()*99)+1);
+  const sorted=[...arr].sort((a,b)=>a-b);
+  const type=document.getElementById('search-type')?.value||'linear';
+  searchArr=type==='binary'?sorted:arr;
+  searchStep=0;searchDone=false;searchOps=0;
+  renderSearchArr(-1,-1,-1);
+  document.getElementById('search-log').innerHTML='<span class="cm">// premi "Passo successivo" per iniziare</span>';
+  document.getElementById('search-stats').innerHTML='<span class="cm">// statistiche ricerca</span>';
+  document.getElementById('btn-search-step').disabled=false;
+}
+function renderSearchArr(cur,found,cmpIdx){
+  const el=document.getElementById('search-arr');
+  el.innerHTML=searchArr.map((v,i)=>{
+    let cls='arr-cell';
+    if(i===found)cls+=' found';
+    else if(i===cmpIdx)cls+=' comparing';
+    else if(i===cur)cls+=' active';
+    return `<div class="${cls}">${v}<span class="idx">${i}</span></div>`;
+  }).join('');
+}
+
+let linearIdx=0;
+let binSx=0,binDx,binMid=-1;
+function stepSearch(){
+  const type=document.getElementById('search-type').value;
+  const target=parseInt(document.getElementById('search-val').value)||37;
+  const log=document.getElementById('search-log');
+  if(searchDone)return;
+  searchOps++;
+
+  if(type==='linear'){
+    if(linearIdx===0){linearIdx=0;binSx=0;}
+    if(linearIdx>=searchArr.length){
+      log.innerHTML+=`<div class="log-line" style="color:var(--accent2)">⚠️ Elemento ${target} NON trovato. Passi: ${searchOps}</div>`;
+      searchDone=true;document.getElementById('btn-search-step').disabled=true;
+      document.getElementById('search-stats').innerHTML=`elemento: <span class="co">${target}</span> | esito: <span class="co">non trovato</span> | confronti: <span class="cy">${searchOps}</span> | complessità: <span class="co">O(n)</span>`;
+      return;
+    }
+    renderSearchArr(-1,searchArr[linearIdx]===target?linearIdx:-1,linearIdx);
+    log.innerHTML+=`<div class="log-line">i=${linearIdx} → A[${linearIdx}]=${searchArr[linearIdx]} ${searchArr[linearIdx]===target?'<span class="cg">= '+target+' ✓ TROVATO!</span>':'<span class="cm">≠ '+target+'</span>'}</div>`;
+    if(searchArr[linearIdx]===target){
+      searchDone=true;
+      document.getElementById('btn-search-step').disabled=true;
+      document.getElementById('search-stats').innerHTML=`elemento: <span class="cy">${target}</span> | indice: <span class="cg">${linearIdx}</span> | confronti: <span class="cy">${searchOps}</span> | complessità: <span class="co">O(n)</span>`;
+    }
+    linearIdx++;
+  } else {
+    // binary
+    if(searchOps===1){binSx=0;binDx=searchArr.length-1;}
+    if(binSx>binDx){
+      log.innerHTML+=`<div class="log-line" style="color:var(--accent2)">⚠️ Elemento ${target} NON trovato. Passi: ${searchOps}</div>`;
+      searchDone=true;document.getElementById('btn-search-step').disabled=true;
+      return;
+    }
+    binMid=Math.floor((binSx+binDx)/2);
+    renderSearchArr(-1,searchArr[binMid]===target?binMid:-1,binMid);
+    const rel=searchArr[binMid]===target?`<span class="cg">= ${target} ✓ TROVATO!</span>`:
+              searchArr[binMid]<target?`<span class="cm">< ${target} → cerca DESTRA [${binMid+1},${binDx}]</span>`:
+              `<span class="cm">> ${target} → cerca SINISTRA [${binSx},${binMid-1}]</span>`;
+    log.innerHTML+=`<div class="log-line">sx=${binSx} dx=${binDx} mid=${binMid} → A[${binMid}]=${searchArr[binMid]} ${rel}</div>`;
+    if(searchArr[binMid]===target){
+      searchDone=true;
+      document.getElementById('btn-search-step').disabled=true;
+      document.getElementById('search-stats').innerHTML=`elemento: <span class="cy">${target}</span> | indice: <span class="cg">${binMid}</span> | confronti: <span class="cy">${searchOps}</span> | O(log n): max ${Math.ceil(Math.log2(searchArr.length))} confronti`;
+    } else if(searchArr[binMid]<target) binSx=binMid+1;
+    else binDx=binMid-1;
+  }
+  const logEl=document.getElementById('search-log');logEl.scrollTop=logEl.scrollHeight;
+}
+
+// ═══════════════════════════════════════════════════
+// TAB 5 — ORDINAMENTO
+// ═══════════════════════════════════════════════════
+let sortArr=[],sortSteps=[],sortStepIdx=0,sortPlaying=false,sortTimer=null,sortSpeed=400;
+let sortComps=0,sortSwaps=0;
+
+const SORT_EXPLAIN={
+  bubble:'<strong>Bubble Sort:</strong> confronta coppie adiacenti e le scambia se fuori ordine. Ripete finché nessuno scambio — gli elementi "galleggiano" verso la fine come bolle. Semplice ma lento: O(n²).',
+  selection:'<strong>Selection Sort:</strong> trova il minimo del sottoarray non ordinato e lo sposta in posizione. Ad ogni passata la parte ordinata cresce di 1. Sempre O(n²) confronti, ma meno scambi di bubble.',
+  insertion:'<strong>Insertion Sort:</strong> come ordinare le carte in mano. Prende un elemento e lo inserisce nella posizione corretta nel sottoarray già ordinato. Ottimo per array quasi ordinati: O(n) nel caso migliore.',
+  merge:'<strong>Merge Sort:</strong> divide l\'array a metà, ordina ogni metà ricorsivamente, poi fonde le due metà ordinate. Garantito O(n log n) in tutti i casi. Usa memoria extra O(n).',
+  quick:'<strong>Quick Sort:</strong> sceglie un pivot, posiziona tutti i minori a sinistra e i maggiori a destra (partizione), poi ripete ricorsivamente. O(n log n) in media, O(n²) nel caso peggiore.',
+};
+
+function generateSortArr(){return Array.from({length:20},()=>Math.floor(Math.random()*95)+5);}
+
+function initSort(){
+  clearTimeout(sortTimer);sortPlaying=false;
+  document.getElementById('btn-sort-play').textContent='▶ Avvia';
+  sortArr=generateSortArr();sortSteps=[];sortStepIdx=0;sortComps=0;sortSwaps=0;
+  const algo=document.getElementById('sort-algo').value;
+  generateSortSteps(algo,[...sortArr]);
+  renderSortArr(sortArr,[],[]);
+  drawSortCanvas(sortArr,[],[]);
+  document.getElementById('sort-stats').innerHTML='<span class="cm">// premi Avvia per iniziare</span>';
+  document.getElementById('sort-log').innerHTML='<span class="cm">// log passi</span>';
+  document.getElementById('sort-explain').innerHTML=SORT_EXPLAIN[algo];
+}
+
+function generateSortSteps(algo,a){
+  sortSteps=[];
+  const push=(arr,cmp,swp,sorted,msg,pivot=[])=>sortSteps.push({arr:[...arr],cmp,swp,sorted,msg,pivot});
+
+  if(algo==='bubble'){
+    const n=a.length;let s=[...a];
+    for(let i=0;i<n-1;i++){
+      for(let j=0;j<n-i-1;j++){
+        push(s,[j,j+1],[],[...Array(n-i-1).keys()].map(k=>n-1-k).filter(k=>k>n-2-i),`Confronto A[${j}]=${s[j]} vs A[${j+1}]=${s[j+1]}`);
+        if(s[j]>s[j+1]){[s[j],s[j+1]]=[s[j+1],s[j]];push(s,[],[j,j+1],Array.from({length:n-i-1},(_, k)=>n-1-k).filter(k=>k>n-2-i),`Scambio: ${s[j+1]} ↔ ${s[j]}`);}
+      }
+    }
+    push(s,[],[],Array.from({length:n},(_,k)=>k),'✓ Array ordinato!');
+  } else if(algo==='selection'){
+    const n=a.length;let s=[...a];const sortedI=[];
+    for(let i=0;i<n-1;i++){
+      let minI=i;
+      for(let j=i+1;j<n;j++){
+        push(s,[minI,j],[],sortedI.slice(),`Passo ${i+1}: cerco minimo. A[${j}]=${s[j]} vs min A[${minI}]=${s[minI]}`);
+        if(s[j]<s[minI])minI=j;
+      }
+      if(minI!==i){[s[i],s[minI]]=[s[minI],s[i]];push(s,[],[i,minI],sortedI.slice(),`Sposto minimo ${s[i]} in posizione ${i}`);}
+      sortedI.push(i);
+    }
+    sortedI.push(n-1);push(s,[],[],sortedI,'✓ Array ordinato!');
+  } else if(algo==='insertion'){
+    const n=a.length;let s=[...a];
+    for(let i=1;i<n;i++){
+      const key=s[i];let j=i-1;
+      push(s,[i],[],[...Array(i).keys()],`Inserisco ${key} nella posizione corretta`);
+      while(j>=0&&s[j]>key){
+        s[j+1]=s[j];push(s,[j,j+1],[],[],`A[${j}]=${s[j]} > ${key}: sposto a destra`);
+        j--;
+      }
+      s[j+1]=key;push(s,[j+1],[],[...Array(i+1).keys()],`${key} inserito in posizione ${j+1}`);
+    }
+    push(s,[],[],Array.from({length:n},(_,k)=>k),'✓ Array ordinato!');
+  } else if(algo==='merge'){
+    const s=[...a];
+    function mergeSort(arr,l,r){
+      if(l>=r)return;
+      const m=Math.floor((l+r)/2);
+      mergeSort(arr,l,m);mergeSort(arr,m+1,r);
+      const left=arr.slice(l,m+1),right=arr.slice(m+1,r+1);
+      let i=0,j=0,k=l;
+      while(i<left.length&&j<right.length){
+        push(arr,[l+i,m+1+j],[],[],`Merge [${l},${m}][${m+1},${r}]: ${left[i]} vs ${right[j]}`);
+        if(left[i]<=right[j]){arr[k++]=left[i++];}else{arr[k++]=right[j++];}
+        push(arr,[],[k-1],[],`Inserito ${arr[k-1]} in pos ${k-1}`);
+      }
+      while(i<left.length){arr[k++]=left[i++];}while(j<right.length){arr[k++]=right[j++];}
+    }
+    mergeSort(s,0,s.length-1);
+    push(s,[],[],Array.from({length:s.length},(_,k)=>k),'✓ Array ordinato!');
+  } else if(algo==='quick'){
+    const s=[...a];
+    function quickSort(arr,l,r){
+      if(l>=r)return;
+      const pivot=arr[r];let i=l-1;
+      push(arr,[r],[],[],`Pivot = ${pivot} (indice ${r})`,[r]);
+      for(let j=l;j<r;j++){
+        push(arr,[j,r],[],[],`A[${j}]=${arr[j]} vs pivot ${pivot}`,[r]);
+        if(arr[j]<=pivot){i++;[arr[i],arr[j]]=[arr[j],arr[i]];push(arr,[],[i,j],[],`A[${j}]≤pivot: scambio con pos ${i}`,[r]);}
+      }
+      [arr[i+1],arr[r]]=[arr[r],arr[i+1]];
+      push(arr,[],[i+1,r],[],`Pivot ${pivot} in posizione finale ${i+1}`,[]);
+      quickSort(arr,l,i);quickSort(arr,i+2,r);
+    }
+    quickSort(s,0,s.length-1);
+    push(s,[],[],Array.from({length:s.length},(_,k)=>k),'✓ Array ordinato!');
+  }
+}
+
+function renderSortArr(arr,cmp,swp,sorted=[],pivot=[]){
+  const el=document.getElementById('sort-arr');
+  el.innerHTML=arr.map((v,i)=>{
+    let cls='arr-cell';
+    if(sorted.includes(i))cls+=' sorted';
+    else if(swp.includes(i))cls+=' swapping';
+    else if(cmp.includes(i))cls+=' comparing';
+    else if(pivot.includes(i))cls+=' pivot';
+    return `<div class="${cls}">${v}<span class="idx">${i}</span></div>`;
+  }).join('');
+}
+
+function drawSortCanvas(arr,cmp,swp,sorted=[],pivot=[]){
+  const canvas=document.getElementById('sort-canvas');
+  if(!canvas)return;
+  const wrap=canvas.parentElement;
+  const W=wrap.clientWidth||800,H=200;
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  const n=arr.length,bw=Math.floor(W/n)-2,maxV=Math.max(...arr);
+  arr.forEach((v,i)=>{
+    const bh=Math.floor((v/maxV)*(H-20));
+    const x=i*(bw+2)+2,y=H-bh-1;
+    ctx.fillStyle=sorted.includes(i)?'#22c55e':swp.includes(i)?'#a855f7':cmp.includes(i)?'#ff6b35':pivot.includes(i)?'#facc15':'#0369a1';
+    ctx.fillRect(x,y,bw,bh);
+  });
+}
+
+function updateSpeed(){
+  sortSpeed=parseInt(document.getElementById('sl-speed').value);
+  document.getElementById('v-speed').textContent=sortSpeed+'ms';
+}
+
+function stepSortOnce(){
+  if(sortStepIdx>=sortSteps.length)return;
+  const step=sortSteps[sortStepIdx++];
+  renderSortArr(step.arr,step.cmp,step.swp,step.sorted,step.pivot);
+  drawSortCanvas(step.arr,step.cmp,step.swp,step.sorted,step.pivot);
+  if(step.cmp.length)sortComps++;
+  if(step.swp.length)sortSwaps++;
+  const log=document.getElementById('sort-log');
+  log.innerHTML+=`<div class="log-line">${sortStepIdx}. ${step.msg}</div>`;
+  log.scrollTop=log.scrollHeight;
+  document.getElementById('sort-stats').innerHTML=`passo: <span class="cv">${sortStepIdx}/${sortSteps.length}</span> | confronti: <span class="cy">${sortComps}</span> | scambi: <span class="co">${sortSwaps}</span>`;
+  if(sortStepIdx>=sortSteps.length){document.getElementById('btn-sort-play').textContent='▶ Fine';sortPlaying=false;}
+}
+
+function toggleSort(){
+  if(sortStepIdx>=sortSteps.length){initSort();return;}
+  sortPlaying=!sortPlaying;
+  document.getElementById('btn-sort-play').textContent=sortPlaying?'⏸ Pausa':'▶ Avvia';
+  if(sortPlaying)autoStepSort();
+}
+function autoStepSort(){
+  if(!sortPlaying||sortStepIdx>=sortSteps.length){if(sortStepIdx>=sortSteps.length)document.getElementById('btn-sort-play').textContent='↺ Ricomincia';return;}
+  stepSortOnce();
+  sortTimer=setTimeout(autoStepSort,sortSpeed);
+}
+
+// ═══════════════════════════════════════════════════
+// TAB 6 — GRAFI BFS/DFS
+// ═══════════════════════════════════════════════════
+const GRAPH_NODES=[
+  {id:'A',x:.15,y:.2},{id:'B',x:.4,y:.1},{id:'C',x:.7,y:.15},
+  {id:'D',x:.85,y:.45},{id:'E',x:.6,y:.5},{id:'F',x:.35,y:.55},
+  {id:'G',x:.1,y:.6},{id:'H',x:.25,y:.85},{id:'I',x:.6,y:.8},
+];
+const GRAPH_EDGES=[
+  ['A','B'],['A','G'],['B','C'],['B','F'],['C','D'],['C','E'],
+  ['D','E'],['E','F'],['E','I'],['F','G'],['F','H'],['G','H'],['H','I'],
+];
+let graphSource='A',graphVisited=[],graphQueue=[],graphStack=[],
+    graphCurrent=null,graphDone=false,graphStep=0,graphOrder=[],graphAutoTimer=null;
+
+function initGraph(){
+  graphSource='A';graphVisited=[];graphQueue=[];graphStack=[];
+  graphCurrent=null;graphDone=false;graphStep=0;graphOrder=[];
+  drawGraph();
+}
+function resetGraph(){clearTimeout(graphAutoTimer);initGraph();
+  document.getElementById('graph-log').innerHTML='<span class="cm">// clicca un nodo per impostare la sorgente</span>';
+  document.getElementById('graph-stats').innerHTML='<span class="cm">// statistiche visita</span>';}
+
+function getAdj(id){return GRAPH_EDGES.filter(e=>e[0]===id||e[1]===id).map(e=>e[0]===id?e[1]:e[0]).sort();}
+
+function drawGraph(){
+  const canvas=document.getElementById('graph-canvas');if(!canvas)return;
+  const wrap=document.getElementById('graph-wrap');
+  const W=wrap.clientWidth||700,H=360;
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  // edges
+  GRAPH_EDGES.forEach(([a,b])=>{
+    const na=GRAPH_NODES.find(n=>n.id===a),nb=GRAPH_NODES.find(n=>n.id===b);
+    const visited_edge=graphVisited.includes(a)&&graphVisited.includes(b);
+    ctx.strokeStyle=visited_edge?'rgba(34,197,94,.5)':'rgba(30,42,58,1)';
+    ctx.lineWidth=visited_edge?2:1.5;
+    ctx.beginPath();ctx.moveTo(na.x*W,na.y*H);ctx.lineTo(nb.x*W,nb.y*H);ctx.stroke();
+  });
+  // nodes
+  GRAPH_NODES.forEach(n=>{
+    const x=n.x*W,y=n.y*H,r=20;
+    let stroke='var(--accent)',fill='rgba(0,229,255,.1)',textColor='#00e5ff';
+    if(n.id===graphCurrent){stroke='#facc15';fill='rgba(250,204,21,.25)';textColor='#facc15';}
+    else if(graphVisited.includes(n.id)){stroke='#22c55e';fill='rgba(34,197,94,.2)';textColor='#22c55e';}
+    else if(graphQueue.includes(n.id)||graphStack.includes(n.id)){stroke='#a855f7';fill='rgba(168,85,247,.15)';textColor='#a855f7';}
+    else if(n.id===graphSource&&graphVisited.length===0){stroke='#facc15';fill='rgba(250,204,21,.12)';textColor='#facc15';}
+    // glow
+    if(n.id===graphCurrent){ctx.shadowColor='#facc15';ctx.shadowBlur=16;}
+    else{ctx.shadowBlur=0;}
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=fill;ctx.fill();
+    ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.fillStyle=textColor;ctx.font=`bold 14px 'JetBrains Mono',monospace`;
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(n.id,x,y);
+    // source label
+    if(n.id===graphSource&&graphVisited.length===0){
+      ctx.fillStyle='rgba(250,204,21,.5)';ctx.font='9px JetBrains Mono';ctx.fillText('START',x,y+28);}
+  });
+  // click handler
+  canvas.onclick=function(e){
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(W/rect.width),my=(e.clientY-rect.top)*(H/rect.height);
+    GRAPH_NODES.forEach(n=>{
+      if(Math.hypot(n.x*W-mx,n.y*H-my)<22){
+        graphSource=n.id;clearTimeout(graphAutoTimer);
+        graphVisited=[];graphQueue=[];graphStack=[];graphCurrent=null;graphDone=false;graphStep=0;graphOrder=[];
+        drawGraph();
+        document.getElementById('graph-log').innerHTML=`<span class="cg">Sorgente impostata: <strong>${n.id}</strong>. Premi Passo.</span>`;
+      }
+    });
+  };
+}
+
+function stepGraph(){
+  if(graphDone)return;
+  const algo=document.getElementById('graph-algo').value;
+  const log=document.getElementById('graph-log');
+  if(graphStep===0){
+    if(algo==='bfs'){graphQueue=[graphSource];graphVisited=[graphSource];}
+    else{graphStack=[graphSource];graphVisited=[];}
+    graphCurrent=null;
+    log.innerHTML=`<div class="log-line">Inizializzazione: sorgente = <span class="cg">${graphSource}</span></div>`;
+  }
+  graphStep++;
+  if(algo==='bfs'){
+    if(graphQueue.length===0){graphDone=true;log.innerHTML+=`<div class="log-line" style="color:var(--accent4)">✓ BFS completata! Ordine: ${graphOrder.join(' → ')}</div>`;updateGraphStats();return;}
+    const v=graphQueue.shift();graphCurrent=v;graphOrder.push(v);
+    const adj=getAdj(v).filter(u=>!graphVisited.includes(u));
+    adj.forEach(u=>{graphVisited.push(u);graphQueue.push(u);});
+    log.innerHTML+=`<div class="log-line">Visito <span class="cg">${v}</span> | coda: [${graphQueue.join(',')}] | vicini nuovi: [${adj.join(',')||'nessuno'}]</div>`;
+  } else {
+    if(graphStack.length===0){graphDone=true;log.innerHTML+=`<div class="log-line" style="color:var(--accent4)">✓ DFS completata! Ordine: ${graphOrder.join(' → ')}</div>`;updateGraphStats();return;}
+    const v=graphStack.pop();
+    if(graphVisited.includes(v)){stepGraph();return;}
+    graphVisited.push(v);graphCurrent=v;graphOrder.push(v);
+    const adj=getAdj(v).filter(u=>!graphVisited.includes(u)).reverse();
+    adj.forEach(u=>graphStack.push(u));
+    log.innerHTML+=`<div class="log-line">Visito <span class="cg">${v}</span> | stack: [${graphStack.join(',')}] | vicini: [${adj.reverse().join(',')||'nessuno'}]</div>`;
+  }
+  const logEl=document.getElementById('graph-log');logEl.scrollTop=logEl.scrollHeight;
+  drawGraph();updateGraphStats();
+  setTimeout(()=>{graphCurrent=null;drawGraph();},300);
+}
+
+function updateGraphStats(){
+  document.getElementById('graph-stats').innerHTML=
+    `visitati: <span class="cg">${graphVisited.length}/${GRAPH_NODES.length}</span> | ordine: <span class="cv">${graphOrder.join(' → ')}</span> | passi: <span class="cy">${graphStep}</span>`;
+}
+
+function autoGraph(){
+  clearTimeout(graphAutoTimer);
+  function go(){if(graphDone)return;stepGraph();graphAutoTimer=setTimeout(go,700);}
+  go();
+}
+
+// ═══════════════════════════════════════════════════
+// TAB 7 — RICORSIONE
+// ═══════════════════════════════════════════════════
+function initFactView(){}
+function runFactorial(){
+  const n=parseInt(document.getElementById('fact-n').value);
+  if(isNaN(n)||n<0||n>15)return;
+  const stack=document.getElementById('fact-stack');
+  const calls=[];
+  function fact(k){calls.push(k);return k===0?1:k*fact(k-1);}
+  const result=fact(n);
+  const colors=['var(--accent)','var(--accent3)','var(--accent2)','var(--accent4)','var(--accent5)'];
+  stack.innerHTML=calls.map((k,i)=>`
+    <div style="margin-left:${i*14}px;padding:6px 12px;border-left:3px solid ${colors[i%5]};
+      background:rgba(255,255,255,.02);border-radius:0 6px 6px 0;margin-bottom:4px;
+      font-family:'JetBrains Mono',monospace;font-size:12px;">
+      <span style="color:${colors[i%5]}">CHIAMA</span> fact(<span style="color:var(--accent)">${k}</span>)
+      ${k===0?` → <span style="color:var(--accent4)">1</span> (caso base)`:''}
+    </div>`).join('')+
+    `<div style="padding:8px 12px;border:1px solid var(--accent4);border-radius:6px;
+      font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent4);margin-top:8px">
+      ✓ fact(${n}) = ${result}</div>`;
+}
+
+function drawFibTree(){
+  const canvas=document.getElementById('fib-canvas');if(!canvas)return;
+  const wrap=canvas.parentElement;
+  const W=wrap.clientWidth||400,H=260;
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  const n=parseInt(document.getElementById('fib-n').value)||5;
+  const calls={};
+  function fib(k){calls[k]=(calls[k]||0)+1;if(k<=1)return k;return fib(k-1)+fib(k-2);}
+  fib(n);
+  function drawNode(k,x,y,level,parentX,parentY){
+    if(level>n||y>H-20)return;
+    if(parentX!==null){
+      ctx.strokeStyle='rgba(30,42,58,1)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(parentX,parentY);ctx.lineTo(x,y);ctx.stroke();
+    }
+    const r=16,colors=['var(--accent)','var(--accent3)','var(--accent2)','var(--accent4)','var(--accent5)'];
+    const c=colors[level%5];
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${level%2===0?'0,229,255':'168,85,247'},.1)`;ctx.fill();
+    ctx.strokeStyle=c;ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle=c;ctx.font=`bold 11px 'JetBrains Mono'`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(`F(${k})`,x,y);
+    const spread=Math.max(20,W/(Math.pow(2,level+1)));
+    if(k>1){
+      drawNode(k-1,x-spread,y+50,level+1,x,y);
+      drawNode(k-2,x+spread,y+50,level+1,x,y);
+    }
+  }
+  drawNode(n,W/2,28,0,null,null);
+  const total=Object.values(calls).reduce((a,b)=>a+b,0);
+  ctx.fillStyle='var(--muted)';ctx.font=`10px 'JetBrains Mono'`;ctx.textAlign='left';ctx.textBaseline='bottom';
+  ctx.fillText(`Chiamate totali: ${total} | F(${n}) = ${[0,1,1,2,3,5,8,13,21,34,55,89][n]||'?'}`,6,H-4);
+}
+
+// ═══════════════════════════════════════════════════
+// TAB 8 — QUIZ
+// ═══════════════════════════════════════════════════
+const QUIZ=[
+  {q:'Quale di queste è una proprietà NECESSARIA di un algoritmo?',
+   opts:['Deve essere scritto in C++','Deve terminare dopo un numero finito di passi','Deve usare la ricorsione','Deve ordinare una lista'],
+   c:1,e:'La finitezza è una proprietà fondamentale: un algoritmo deve terminare. Un processo infinito non è un algoritmo. Le altre opzioni sono false: un algoritmo può essere scritto in qualsiasi linguaggio, non deve usare ricorsione e può risolvere qualsiasi problema, non solo ordinamenti.'},
+  {q:'Cosa significa O(n) nella notazione "O-grande"?',
+   opts:['L\'algoritmo usa n byte di memoria','Il tempo cresce linearmente con la dimensione dell\'input n','L\'algoritmo fa esattamente n operazioni','Il tempo è costante'],
+   c:1,e:'O(n) indica crescita lineare: raddoppiando n, raddoppia circa il tempo. È la complessità di algoritmi che scorrono tutti gli elementi una volta sola, come la ricerca lineare o il calcolo della somma di un array.'},
+  {q:'La ricerca binaria funziona solo se:',
+   opts:['L\'array è lungo almeno 100 elementi','L\'array è ordinato','Gli elementi sono numeri interi','L\'array è memorizzato in RAM'],
+   c:1,e:'La ricerca binaria si basa sul confronto con l\'elemento centrale: se l\'elemento cercato è minore, si cerca nella metà sinistra; se maggiore, nella destra. Questo funziona solo se l\'array è ordinato — altrimenti non si saprebbe da che parte continuare.'},
+  {q:'Qual è la complessità di Bubble Sort nel caso peggiore?',
+   opts:['O(n)','O(n log n)','O(n²)','O(log n)'],
+   c:2,e:'Bubble Sort usa due cicli annidati: per ogni elemento (n volte), confronta tutte le coppie non ancora ordinate (~n volte). Il totale è circa n×n = n² operazioni. È uno degli algoritmi di ordinamento più lenti per array grandi.'},
+  {q:'La parola "algoritmo" deriva da:',
+   opts:['Dal greco "algos" (dolore) + "arithmos" (numero)','Dal nome del matematico al-Khwarizmi, latinizzato in "algoritmi"','Dal latino "algorismus" inventato da Leonardo Fibonacci','Da Alan Turing che la coniò nel 1936'],
+   c:1,e:'La parola deriva dal nome Muḥammad ibn Mūsā al-Khwārizmī, matematico persiano dell\'825 d.C. Le traduzioni latine dei suoi testi iniziavano con "Algoritmi de numero..." (latinizzazione del suo nome), e da lì la parola prese vita in Europa.'},
+  {q:'Quale algoritmo di visita dei grafi trova il percorso più breve (in archi) tra due nodi?',
+   opts:['DFS','Bubble Sort','BFS','Ricerca binaria'],
+   c:2,e:'BFS (Breadth-First Search) visita tutti i nodi a distanza 1, poi tutti a distanza 2, poi a distanza 3... Questo garantisce che il primo percorso trovato per raggiungere un nodo sia il più breve in termini di numero di archi. DFS non ha questa proprietà.'},
+  {q:'Cosa DEVE avere ogni funzione ricorsiva per terminare?',
+   opts:['Una variabile globale','Un ciclo for interno','Un caso base che non fa chiamate ricorsive','Una complessità O(log n)'],
+   c:2,e:'Senza un caso base, la ricorsione chiama se stessa all\'infinito fino a esaurire lo stack (stack overflow). Il caso base è la condizione di arresto: un input "piccolo" per cui la risposta è diretta, senza ulteriori chiamate ricorsive.'},
+  {q:'Merge Sort ha complessità O(n log n). Rispetto a Bubble Sort O(n²), con n = 1000:',
+   opts:['Merge Sort fa circa 10.000 operazioni contro 1.000.000 di Bubble Sort','Sono uguali','Bubble Sort è più veloce perché n² è più preciso','Dipende dal computer'],
+   c:0,e:'n log₂(n) con n=1000 ≈ 1000×10 = 10.000 operazioni. n² = 1.000.000 operazioni. Merge Sort è circa 100 volte più veloce in questo caso. Con n=1.000.000 la differenza diventa ancora più drammatica: ~20 milioni vs 10¹² operazioni.'},
+  {q:'Alan Turing nel 1936 dimostrò che:',
+   opts:['Il primo computer era il transistor','Esistono problemi che nessun algoritmo può risolvere (Problema della Fermata)','La ricerca binaria è O(log n)','i² = -1'],
+   c:1,e:'Il Problema della Fermata chiede: "dato un algoritmo e un input, l\'algoritmo termina?" Turing dimostrò che non esiste nessun algoritmo generale in grado di rispondere sempre a questa domanda. Questo è il primo e fondamentale risultato di incompletezza dell\'informatica teorica.'},
+  {q:'La "memoization" nella programmazione dinamica serve a:',
+   opts:['Allocare più RAM al programma','Salvare i risultati già calcolati per non ricalcolarli','Ordinare più velocemente','Convertire la ricorsione in un ciclo'],
+   c:1,e:'La memoization (cache dei risultati) trasforma algoritmi ricorsivi esponenziali in lineari. Fibonacci ricorsivo naif fa O(2ⁿ) chiamate perché ricalcola gli stessi valori molte volte. Con memoization, ogni valore viene calcolato una sola volta e poi riutilizzato: la complessità diventa O(n).'},
+];
+
+let qScore=0,qAns=0;
+function initQuiz(){
+  const body=document.getElementById('quiz-body');
+  QUIZ.forEach((q,qi)=>{
+    const block=document.createElement('div');block.className='card';block.style.marginBottom='16px';
+    block.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-family:'JetBrains Mono',monospace">DOMANDA ${qi+1}/${QUIZ.length}</div>
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:14px">${q.q}</h3>
+      ${q.opts.map((o,oi)=>`<div class="quiz-opt" id="qo-${qi}-${oi}" onclick="ansQ(${qi},${oi})">${o}</div>`).join('')}
+      <div id="qe-${qi}" style="display:none;margin-top:12px;font-size:13px;color:var(--muted);line-height:1.7;padding:12px;background:rgba(255,255,255,.03);border-radius:6px">💡 ${q.e}</div>`;
+    body.appendChild(block);
+  });
+}
+function ansQ(qi,oi){
+  const q=QUIZ[qi];
+  if(document.getElementById(`qo-${qi}-0`).classList.contains('correct')||document.getElementById(`qo-${qi}-0`).classList.contains('wrong'))return;
+  q.opts.forEach((_,i)=>{
+    const el=document.getElementById(`qo-${qi}-${i}`);el.style.cursor='default';
+    if(i===q.c)el.classList.add('correct');else if(i===oi)el.classList.add('wrong');
+  });
+  document.getElementById(`qe-${qi}`).style.display='block';
+  if(oi===q.c)qScore++;qAns++;
+  if(qAns===QUIZ.length){
+    const pct=Math.round(qScore/QUIZ.length*100);
+    const res=document.getElementById('quiz-result');res.style.display='block';
+    res.innerHTML=`🎓 <strong>Quiz completato!</strong> ${qScore}/${QUIZ.length} risposte corrette (${pct}%)<br><br>${
+      pct>=80?'🏆 Ottimo! Hai una solida comprensione degli algoritmi e della loro complessità.':
+      pct>=60?'👍 Buon lavoro! Ripassate le sezioni dove avete avuto incertezze.':
+      '📖 Ripassate il corso — ci sono ancora molti concetti da consolidare. Partite dalla complessità!'}`;
+  }
+}
+
+// INIT
+inited['int']=true;
+window.addEventListener('resize',()=>{
+  if(inited['com'])updateComplexity();
+  if(inited['ord']){initSort();}
+  if(inited['gra']){drawGraph();}
+  if(inited['ric2'])drawFibTree();
+});
+</script>
+</body>
+</html>

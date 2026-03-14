@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voronoi100</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #07080d;
+  --surface: #0d0f18;
+  --card:    #12151f;
+  --border:  #1e2235;
+  --v1: #ff2d6b;
+  --v2: #ff8c00;
+  --v3: #ffe600;
+  --v4: #00ffaa;
+  --v5: #00cfff;
+  --v6: #bf5fff;
+  --text:    #f0f2ff;
+  --muted:   #4a5070;
+  --radius:  10px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── HEADER ── */
+header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 22px;
+  height: 52px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  position: relative;
+}
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--v1), var(--v2), var(--v3), var(--v4), var(--v5), var(--v6), var(--v1));
+  background-size: 300% 100%;
+  animation: rainbow 4s linear infinite;
+}
+@keyframes rainbow { 0%{background-position:0% 0%} 100%{background-position:300% 0%} }
+
+.logo {
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 900;
+  font-size: 1.25rem;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, var(--v1), var(--v2), var(--v3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+}
+.tagline {
+  font-size: 0.6rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.header-stats {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+.hstat {
+  text-align: center;
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  min-width: 56px;
+}
+.hstat-val {
+  font-size: 1rem;
+  font-weight: 700;
+  display: block;
+  font-family: 'Unbounded', sans-serif;
+}
+.hstat:nth-child(1) .hstat-val { color: var(--v1); }
+.hstat:nth-child(2) .hstat-val { color: var(--v3); }
+.hstat:nth-child(3) .hstat-val { color: var(--v4); }
+.hstat:nth-child(4) .hstat-val { color: var(--v5); }
+.hstat-lbl { font-size: 0.48rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  height: 52px;
+  overflow-x: auto;
+  gap: 0;
+}
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  height: 100%;
+  border-right: 1px solid var(--border);
+}
+.toolbar-group:first-child { padding-left: 0; }
+.toolbar-group:last-child  { border-right: none; }
+.group-label {
+  font-size: 0.5rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 15px;
+  height: 32px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 0.12s;
+  white-space: nowrap;
+  user-select: none;
+  letter-spacing: 0.01em;
+}
+
+.btn-gen {
+  background: linear-gradient(135deg, var(--v1), var(--v2));
+  color: #fff;
+  border: none;
+  box-shadow: 0 0 14px rgba(255,45,107,0.35);
+}
+.btn-gen:hover { box-shadow: 0 0 22px rgba(255,45,107,0.55); transform: translateY(-1px); }
+
+.btn-lloyd {
+  background: transparent;
+  color: var(--v4);
+  border-color: var(--v4);
+  box-shadow: 0 0 10px rgba(0,255,170,0.15);
+}
+.btn-lloyd:hover { background: rgba(0,255,170,0.1); box-shadow: 0 0 18px rgba(0,255,170,0.3); }
+.btn-lloyd.running {
+  color: var(--v1);
+  border-color: var(--v1);
+  box-shadow: 0 0 10px rgba(255,45,107,0.2);
+  animation: pulse-red 1s ease-in-out infinite;
+}
+@keyframes pulse-red { 0%,100%{box-shadow:0 0 10px rgba(255,45,107,0.2)} 50%{box-shadow:0 0 22px rgba(255,45,107,0.5)} }
+
+.btn-clear {
+  background: transparent;
+  color: var(--muted);
+  border-color: var(--border);
+}
+.btn-clear:hover { color: var(--v1); border-color: var(--v1); background: rgba(255,45,107,0.06); }
+
+/* ── SELECT ── */
+.toolbar select {
+  padding: 0 10px;
+  height: 32px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.12s;
+}
+.toolbar select:focus { border-color: var(--v5); }
+
+/* ── CHIPS ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  height: 28px;
+  border-radius: 14px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  color: var(--muted);
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.12s;
+  white-space: nowrap;
+  user-select: none;
+}
+.chip .dot { width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
+.chip.on { border-color: var(--v5); color: var(--v5); background: rgba(0,207,255,0.08); box-shadow: 0 0 8px rgba(0,207,255,0.15); }
+
+/* ── BODY ── */
+.body-area {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  padding: 12px;
+  gap: 10px;
+  min-height: 0;
+}
+
+/* ── CANVAS WRAPPER ── */
+.canvas-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  min-height: 0;
+}
+.canvas-card {
+  flex: 1;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+  cursor: crosshair;
+  min-height: 0;
+  transition: border-color 0.2s;
+}
+.canvas-card:hover { border-color: #2a3050; }
+.canvas-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+canvas { display:block; width:100%; height:100%; }
+
+.canvas-badge {
+  position: absolute;
+  top: 10px; left: 12px;
+  font-size: 0.5rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 5;
+  background: rgba(7,8,13,0.7);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.canvas-foot {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 0.58rem;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.canvas-foot span { display:flex; align-items:center; gap:5px; }
+.canvas-foot b { color: var(--v3); font-weight: 700; }
+
+#tooltip {
+  position: absolute;
+  background: rgba(7,8,13,0.96);
+  border: 1px solid var(--v3);
+  padding: 4px 10px;
+  font-size: 0.6rem;
+  color: var(--v3);
+  pointer-events: none;
+  display: none;
+  border-radius: 5px;
+  white-space: nowrap;
+  z-index: 20;
+  box-shadow: 0 0 12px rgba(255,230,0,0.2);
+}
+
+/* ── SIDE PANEL ── */
+.side-panel {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+.panel-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+.panel-title {
+  font-size: 0.52rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 9px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.panel-title .pt-dot { width:6px;height:6px;border-radius:50%;flex-shrink:0; }
+.panel-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+.formula-box {
+  background: var(--bg);
+  border-left: 3px solid var(--v3);
+  padding: 9px 11px;
+  font-size: 0.61rem;
+  line-height: 1.9;
+  color: #7a82aa;
+  border-radius: 0 6px 6px 0;
+}
+.formula-box em { color: var(--v3); font-style: normal; font-weight: 700; }
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-row:nth-child(1) .sv { color: var(--v1); }
+.stat-row:nth-child(2) .sv { color: var(--v3); }
+.stat-row:nth-child(3) .sv { color: var(--v4); }
+.stat-row:nth-child(4) .sv { color: var(--v5); }
+.sv { font-weight: 700; font-size: 0.88rem; font-family: 'Unbounded', sans-serif; }
+
+.note {
+  font-size: 0.59rem;
+  color: #5a6488;
+  line-height: 1.7;
+  padding: 8px 10px;
+  background: var(--bg);
+  border-radius: 6px;
+}
+.note strong { color: var(--v4); }
+.note b { color: var(--v5); }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div>
+    <div class="logo">VORONOI100</div>
+    <div class="tagline">Partizione del piano · V(pᵢ) = {x : d(x,pᵢ) ≤ d(x,pⱼ) ∀j≠i}</div>
+  </div>
+  <div class="header-stats">
+    <div class="hstat"><span class="hstat-val" id="s-sites">0</span><span class="hstat-lbl">Siti</span></div>
+    <div class="hstat"><span class="hstat-val" id="s-cells">0</span><span class="hstat-lbl">Celle</span></div>
+    <div class="hstat"><span class="hstat-val" id="s-verts">0</span><span class="hstat-lbl">Vertici</span></div>
+    <div class="hstat"><span class="hstat-val" id="s-edges">0</span><span class="hstat-lbl">Spigoli</span></div>
+  </div>
+</header>
+
+<!-- ── TOOLBAR ── -->
+<div class="toolbar">
+
+  <div class="toolbar-group">
+    <span class="group-label">Distribuzione</span>
+    <select id="sel-dist">
+      <option value="random">🎲 Casuale</option>
+      <option value="grid">⊞ Griglia</option>
+      <option value="poisson">∷ Poisson Disk</option>
+      <option value="circle">◯ Cerchio</option>
+      <option value="spiral">🌀 Spirale</option>
+    </select>
+    <button class="btn btn-gen" id="btn-gen">⊕ Genera 20</button>
+    <button class="btn btn-clear" id="btn-clear">✕ Cancella</button>
+  </div>
+
+  <div class="toolbar-group">
+    <span class="group-label">Rilassamento</span>
+    <button class="btn btn-lloyd" id="btn-anim">
+      <span id="anim-icon">▶</span>
+      <span id="anim-label">Lloyd</span>
+    </button>
+  </div>
+
+  <div class="toolbar-group">
+    <span class="group-label">Layer</span>
+    <button class="chip on" data-chk="chk-cells"><span class="dot"></span>Celle</button>
+    <button class="chip on" data-chk="chk-edges"><span class="dot"></span>Bordi</button>
+    <button class="chip on" data-chk="chk-sites"><span class="dot"></span>Siti</button>
+    <button class="chip" data-chk="chk-del"><span class="dot"></span>Delaunay</button>
+    <button class="chip" data-chk="chk-circ"><span class="dot"></span>Circoscritte</button>
+    <button class="chip on" data-chk="chk-nn"><span class="dot"></span>Nearest</button>
+  </div>
+
+</div>
+
+<!-- ── BODY ── -->
+<div class="body-area">
+
+  <div class="canvas-wrap">
+    <div class="canvas-card" id="canvas-container">
+      <div class="canvas-badge">Piano di Voronoi</div>
+      <canvas id="cv"></canvas>
+      <div id="tooltip"></div>
+    </div>
+    <div class="canvas-foot">
+      <span><b>Clic</b> per aggiungere sito</span>
+      <span><b>Trascina</b> per spostare</span>
+      <span><b>Hover</b> per dettagli cella</span>
+    </div>
+  </div>
+
+  <div class="side-panel">
+
+    <div class="panel-card">
+      <div class="panel-title"><span class="pt-dot" style="background:var(--v3)"></span>Definizione</div>
+      <div class="formula-box">
+        Dato un insieme di <em>siti S</em>, ogni punto del piano appartiene alla cella del sito <em>più vicino</em>.<br><br>
+        <em>V(pᵢ)</em> = { x ∈ ℝ² : d(x,pᵢ) ≤ d(x,pⱼ) ∀j≠i }
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-title"><span class="pt-dot" style="background:var(--v1)"></span>Statistiche</div>
+      <div class="stat-row"><span>Siti</span><span class="sv" id="sp-sites">0</span></div>
+      <div class="stat-row"><span>Celle</span><span class="sv" id="sp-cells">0</span></div>
+      <div class="stat-row"><span>Vertici</span><span class="sv" id="sp-verts">0</span></div>
+      <div class="stat-row"><span>Spigoli</span><span class="sv" id="sp-edges">0</span></div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-title"><span class="pt-dot" style="background:var(--v4)"></span>Lloyd Relax</div>
+      <div class="note">
+        <strong>Algoritmo di Lloyd:</strong> ogni sito si sposta nel centroide della sua cella. Converge a un <strong>Voronoi centroidale</strong>.<br><br>
+        Il duale è la <b>triangolazione di Delaunay</b>: ogni triangolo ha una circonferenza circoscritta senza altri siti interni.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Hidden checkboxes -->
+<input type="checkbox" id="chk-cells" checked style="display:none">
+<input type="checkbox" id="chk-edges" checked style="display:none">
+<input type="checkbox" id="chk-sites" checked style="display:none">
+<input type="checkbox" id="chk-del"   style="display:none">
+<input type="checkbox" id="chk-circ"  style="display:none">
+<input type="checkbox" id="chk-nn" checked style="display:none">
+
+<script>
+const TAU=Math.PI*2;
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+function lerp(a,b,t){return a+(b-a)*t;}
+
+// Vivid palette for cells — full saturation, varied hue
+const VIVID=[
+  [355,100,62],[20,100,60],[42,100,58],[65,100,50],[140,100,45],
+  [170,100,48],[195,100,52],[220,100,62],[260,90,65],[290,90,62],
+  [320,100,60],[10,100,58],[50,100,52],[100,90,48],[160,100,46],
+  [200,100,55],[240,90,65],[270,90,62],[310,90,60],[345,100,62],
+];
+function cellHSL(i){ const c=VIVID[i%VIVID.length]; return c; }
+
+// ── Voronoi (half-plane clipping, numerically robust) ─────────────────────────
+function voronoi(pts,W,H){
+  if(!pts.length) return{cells:[],edges:[],vertices:[]};
+  const unique=[];
+  for(const p of pts) if(!unique.some(q=>Math.hypot(q.x-p.x,q.y-p.y)<2)) unique.push(p);
+  const N=unique.length, cells=[];
+
+  function clip(poly,A,B){
+    if(!poly.length) return[];
+    const mx=(A.x+B.x)/2, my=(A.y+B.y)/2;
+    const dx=B.x-A.x, dy=B.y-A.y;
+    const ins=p=>(p[0]-mx)*dx+(p[1]-my)*dy<=1e-7;
+    const res=[];
+    for(let i=0;i<poly.length;i++){
+      const cur=poly[i],nxt=poly[(i+1)%poly.length];
+      const ci=ins(cur),ni=ins(nxt);
+      if(ci) res.push(cur);
+      if(ci!==ni){
+        const dx1=nxt[0]-cur[0],dy1=nxt[1]-cur[1];
+        const denom=dx1*dx+dy1*dy;
+        if(Math.abs(denom)<1e-12) continue;
+        const t=((mx-cur[0])*dx+(my-cur[1])*dy)/denom;
+        res.push([cur[0]+t*dx1,cur[1]+t*dy1]);
+      }
+    }
+    return res;
+  }
+
+  for(let i=0;i<N;i++){
+    let poly=[[0,0],[W,0],[W,H],[0,H]];
+    const A=unique[i];
+    for(let j=0;j<N;j++){
+      if(i===j) continue;
+      poly=clip(poly,A,unique[j]);
+      if(!poly.length) break;
+    }
+    cells.push({site:A,siteIdx:i,polygon:poly});
+  }
+  const eSet=new Map(),vSet=new Map(),vk=([x,y])=>`${Math.round(x*10)},${Math.round(y*10)}`;
+  for(const c of cells){const p=c.polygon;for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length],ka=vk(a),kb=vk(b),ek=ka<kb?`${ka}|${kb}`:`${kb}|${ka}`;if(!eSet.has(ek))eSet.set(ek,{a,b});vSet.set(ka,a);vSet.set(kb,b);}}
+  return{cells,edges:[...eSet.values()],vertices:[...vSet.values()]};
+}
+
+// ── Delaunay (Bowyer-Watson) ───────────────────────────────────────────────────
+function bowyer(sites){
+  if(sites.length<3) return[];
+  const pts=sites.map((s,i)=>({x:s.x,y:s.y,i})),M=1e5;
+  pts.push({x:0,y:-M,i:-1},{x:-M,y:M,i:-2},{x:M,y:M,i:-3});
+  let tris=[[pts.length-3,pts.length-2,pts.length-1]];
+  function cc(a,b,c){const ax=b.x-a.x,ay=b.y-a.y,bx=c.x-a.x,by=c.y-a.y,D=2*(ax*by-ay*bx);if(Math.abs(D)<1e-10)return null;const ux=(by*(ax*ax+ay*ay)-ay*(bx*bx+by*by))/D,uy=(ax*(bx*bx+by*by)-bx*(ax*ax+ay*ay))/D,cx=a.x+ux,cy=a.y+uy;return{cx,cy,r:Math.hypot(a.x-cx,a.y-cy)};}
+  for(let si=0;si<sites.length;si++){
+    const p=pts[si];let bad=[];
+    for(const t of tris){const c=cc(pts[t[0]],pts[t[1]],pts[t[2]]);if(c&&Math.hypot(p.x-c.cx,p.y-c.cy)<c.r-1e-6)bad.push(t);}
+    const bd=[];for(const t of bad)for(const e of[[t[0],t[1]],[t[1],t[2]],[t[2],t[0]]])if(!bad.some(ot=>ot!==t&&ot.includes(e[0])&&ot.includes(e[1])))bd.push(e);
+    tris=tris.filter(t=>!bad.includes(t));for(const e of bd)tris.push([e[0],e[1],si]);
+  }
+  const N0=sites.length;
+  return tris.filter(t=>t[0]<N0&&t[1]<N0&&t[2]<N0).map(t=>[pts[t[0]],pts[t[1]],pts[t[2]]]);
+}
+function circs(tris){return tris.map(([a,b,c])=>{const ax=b.x-a.x,ay=b.y-a.y,bx=c.x-a.x,by=c.y-a.y,D=2*(ax*by-ay*bx);if(Math.abs(D)<1e-10)return null;const ux=(by*(ax*ax+ay*ay)-ay*(bx*bx+by*by))/D,uy=(ax*(bx*bx+by*by)-bx*(ax*ax+ay*ay))/D,cx=a.x+ux,cy=a.y+uy;return{cx,cy,r:Math.hypot(a.x-cx,a.y-cy)};}).filter(Boolean);}
+
+// ── App ───────────────────────────────────────────────────────────────────────
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const cont=document.getElementById('canvas-container'),tip=document.getElementById('tooltip');
+let sites=[],diagram=null,W,H,dragging=null,animating=false,animId=null,mousePos=null,hoveredCell=null;
+
+function resize(){const r=cont.getBoundingClientRect();W=cv.width=r.width;H=cv.height=r.height;recompute();draw();}
+function recompute(){diagram=sites.length?voronoi(sites,W,H):null;updateStats();}
+function polyArea(p){let a=0;for(let i=0;i<p.length;i++){const j=(i+1)%p.length;a+=p[i][0]*p[j][1]-p[j][0]*p[i][1];}return Math.abs(a/2);}
+
+function updateStats(){
+  const n=sites.length,d=diagram;
+  ['s-sites','sp-sites'].forEach(id=>document.getElementById(id).textContent=n);
+  ['s-cells','sp-cells'].forEach(id=>document.getElementById(id).textContent=d?d.cells.length:0);
+  ['s-verts','sp-verts'].forEach(id=>document.getElementById(id).textContent=d?d.vertices.length:0);
+  ['s-edges','sp-edges'].forEach(id=>document.getElementById(id).textContent=d?d.edges.length:0);
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  // Background — deep dark
+  ctx.fillStyle='#07080d';
+  ctx.fillRect(0,0,W,H);
+
+  // Subtle dot grid
+  ctx.fillStyle='rgba(255,255,255,0.06)';
+  for(let x=30;x<W;x+=40) for(let y=30;y<H;y+=40){
+    ctx.beginPath(); ctx.arc(x,y,1,0,TAU); ctx.fill();
+  }
+
+  if(!diagram) return;
+
+  const sC=document.getElementById('chk-cells').checked;
+  const sE=document.getElementById('chk-edges').checked;
+  const sS=document.getElementById('chk-sites').checked;
+  const sD=document.getElementById('chk-del').checked;
+  const sX=document.getElementById('chk-circ').checked;
+  const sN=document.getElementById('chk-nn').checked;
+
+  // ── Cells (vivid fills)
+  if(sC){
+    for(let ci=0;ci<diagram.cells.length;ci++){
+      const cell=diagram.cells[ci];
+      if(cell.polygon.length<3) continue;
+      const [h,s,l]=cellHSL(ci);
+      const hov=hoveredCell===ci;
+      ctx.beginPath();
+      ctx.moveTo(cell.polygon[0][0],cell.polygon[0][1]);
+      for(let i=1;i<cell.polygon.length;i++) ctx.lineTo(cell.polygon[i][0],cell.polygon[i][1]);
+      ctx.closePath();
+      ctx.fillStyle=hov ? `hsla(${h},${s}%,${l+18}%,0.85)` : `hsla(${h},${s}%,${l}%,0.55)`;
+      ctx.fill();
+    }
+  }
+
+  // ── Nearest-neighbour line
+  if(sN&&mousePos&&sites.length){
+    let md=Infinity,ni=-1;
+    for(let i=0;i<sites.length;i++){const d=dist(mousePos,sites[i]);if(d<md){md=d;ni=i;}}
+    if(ni>=0){
+      const [h]=cellHSL(ni);
+      ctx.beginPath();ctx.moveTo(mousePos.x,mousePos.y);ctx.lineTo(sites[ni].x,sites[ni].y);
+      ctx.strokeStyle=`hsla(${h},100%,70%,0.7)`;ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle=`hsl(${h},100%,72%)`;ctx.font='bold 10px JetBrains Mono,monospace';
+      ctx.fillText(`d=${md.toFixed(1)}`,mousePos.x+9,mousePos.y-7);
+    }
+  }
+
+  // ── Delaunay triangulation
+  if(sD&&sites.length>=3){
+    const tris=bowyer(sites);
+    ctx.lineWidth=1;ctx.setLineDash([]);
+    for(const[a,b,c]of tris){
+      ctx.strokeStyle='rgba(255,255,255,0.18)';
+      ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.lineTo(c.x,c.y);ctx.closePath();ctx.stroke();
+    }
+    if(sX){
+      const cc2=circs(tris);
+      ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=0.8;
+      for(const{cx,cy,r}of cc2){ctx.beginPath();ctx.arc(cx,cy,r,0,TAU);ctx.stroke();}
+    }
+  }
+
+  // ── Cell borders
+  if(sE){
+    ctx.lineWidth=1.5;ctx.setLineDash([]);
+    for(const e of diagram.edges){
+      ctx.beginPath();ctx.moveTo(e.a[0],e.a[1]);ctx.lineTo(e.b[0],e.b[1]);
+      ctx.strokeStyle='rgba(255,255,255,0.7)';
+      ctx.stroke();
+    }
+  }
+
+  // ── Hovered cell highlight border
+  if(hoveredCell!==null&&diagram.cells[hoveredCell]){
+    const cell=diagram.cells[hoveredCell];
+    if(cell.polygon.length>=3){
+      const [h,s,l]=cellHSL(hoveredCell);
+      ctx.beginPath();ctx.moveTo(cell.polygon[0][0],cell.polygon[0][1]);
+      for(let i=1;i<cell.polygon.length;i++) ctx.lineTo(cell.polygon[i][0],cell.polygon[i][1]);
+      ctx.closePath();
+      ctx.strokeStyle=`hsl(${h},${s}%,${l+20}%)`;ctx.lineWidth=3;ctx.stroke();
+    }
+  }
+
+  // ── Sites
+  if(sS){
+    for(let i=0;i<sites.length;i++){
+      const s=sites[i];
+      const [h,sat,l]=cellHSL(i);
+      const isd=dragging===i, r=isd?10:6;
+
+      // outer glow
+      const glow=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,r*3.5);
+      glow.addColorStop(0,`hsla(${h},100%,70%,0.45)`);
+      glow.addColorStop(1,`hsla(${h},100%,70%,0)`);
+      ctx.beginPath();ctx.arc(s.x,s.y,r*3.5,0,TAU);ctx.fillStyle=glow;ctx.fill();
+
+      // dot
+      ctx.beginPath();ctx.arc(s.x,s.y,r,0,TAU);
+      ctx.fillStyle=`hsl(${h},100%,72%)`;ctx.fill();
+
+      // white ring
+      ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=1.5;ctx.stroke();
+
+      // index label
+      ctx.fillStyle='rgba(255,255,255,0.8)';
+      ctx.font=`bold 9px JetBrains Mono,monospace`;
+      ctx.fillText(i,s.x+r+3,s.y-r+1);
+    }
+  }
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+function cpos(e){const r=cv.getBoundingClientRect(),src=e.touches?e.touches[0]:e;return{x:src.clientX-r.left,y:src.clientY-r.top};}
+function findSite(p,th=14){for(let i=0;i<sites.length;i++)if(dist(p,sites[i])<th)return i;return -1;}
+function findCell(p){if(!diagram)return null;let b=null,bd=Infinity;for(let i=0;i<sites.length;i++){const d=dist(p,sites[i]);if(d<bd){bd=d;b=i;}}return b;}
+
+cv.addEventListener('mousedown',e=>{const p=cpos(e),idx=findSite(p);if(idx>=0)dragging=idx;else{sites.push({x:p.x,y:p.y});recompute();draw();}});
+cv.addEventListener('mousemove',e=>{
+  const p=cpos(e);mousePos=p;
+  if(dragging!==null){sites[dragging]={x:p.x,y:p.y};recompute();}
+  hoveredCell=findCell(p);
+  if(hoveredCell!==null&&diagram){
+    const s=sites[hoveredCell],cell=diagram.cells[hoveredCell];
+    const [h]=cellHSL(hoveredCell);
+    tip.style.display='block';tip.style.left=(p.x+14)+'px';tip.style.top=(p.y-12)+'px';
+    tip.style.borderColor=`hsl(${h},100%,65%)`;tip.style.color=`hsl(${h},100%,72%)`;
+    tip.style.boxShadow=`0 0 12px hsla(${h},100%,60%,0.3)`;
+    tip.innerHTML=`Sito ${hoveredCell} · (${s.x.toFixed(0)},${s.y.toFixed(0)}) · A≈${cell?polyArea(cell.polygon).toFixed(0):'—'}px²`;
+  } else tip.style.display='none';
+  draw();
+});
+cv.addEventListener('mouseup',()=>{dragging=null;});
+cv.addEventListener('mouseleave',()=>{mousePos=null;hoveredCell=null;tip.style.display='none';draw();});
+
+// ── Chips ─────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.chip[data-chk]').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    const chk=document.getElementById(chip.dataset.chk);chk.checked=!chk.checked;
+    chip.classList.toggle('on',chk.checked);draw();
+  });
+});
+
+// ── Generate ──────────────────────────────────────────────────────────────────
+function generate(n,type){
+  const mg=40,pts=[];
+  if(type==='random') for(let i=0;i<n;i++) pts.push({x:lerp(mg,W-mg,Math.random()),y:lerp(mg,H-mg,Math.random())});
+  else if(type==='grid'){const cols=Math.ceil(Math.sqrt(n*W/H)),rows=Math.ceil(n/cols);outer:for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){if(pts.length>=n)break outer;pts.push({x:lerp(mg,W-mg,(c+.5)/cols),y:lerp(mg,H-mg,(r+.5)/rows)});}}
+  else if(type==='circle') for(let i=0;i<n;i++){const a=(i/n)*TAU,r=Math.min(W,H)*.38;pts.push({x:W/2+Math.cos(a)*r,y:H/2+Math.sin(a)*r});}
+  else if(type==='spiral') for(let i=0;i<n;i++){const t=i/n,a=t*TAU*3,r=t*Math.min(W,H)*.4;pts.push({x:W/2+Math.cos(a)*r,y:H/2+Math.sin(a)*r});}
+  else if(type==='poisson'){const md=Math.min(W,H)/(Math.sqrt(n)*1.2);let att=0;while(pts.length<n&&att<n*30){att++;const p={x:lerp(mg,W-mg,Math.random()),y:lerp(mg,H-mg,Math.random())};if(pts.every(q=>dist(p,q)>=md))pts.push(p);}}
+  return pts;
+}
+
+document.getElementById('btn-gen').addEventListener('click',()=>{sites=generate(20,document.getElementById('sel-dist').value);recompute();draw();});
+document.getElementById('btn-clear').addEventListener('click',()=>{stopAnim();sites=[];diagram=null;updateStats();draw();});
+
+// ── Lloyd ─────────────────────────────────────────────────────────────────────
+function lloydStep(){
+  if(!diagram||!sites.length) return;
+  const ns=[];
+  for(const cell of diagram.cells){
+    if(!cell.polygon.length){ns.push(cell.site);continue;}
+    let cx=0,cy=0,A=0;const p=cell.polygon;
+    for(let i=0;i<p.length;i++){const j=(i+1)%p.length,cr=p[i][0]*p[j][1]-p[j][0]*p[i][1];cx+=(p[i][0]+p[j][0])*cr;cy+=(p[i][1]+p[j][1])*cr;A+=cr;}
+    A/=2;if(Math.abs(A)<1e-6){ns.push(cell.site);continue;}
+    cx/=(6*A);cy/=(6*A);ns.push({x:Math.max(5,Math.min(W-5,cx)),y:Math.max(5,Math.min(H-5,cy))});
+  }
+  sites=ns;recompute();draw();
+}
+
+function stopAnim(){
+  if(animId) cancelAnimationFrame(animId);
+  animating=false;
+  document.getElementById('anim-icon').textContent='▶';
+  document.getElementById('anim-label').textContent='Lloyd';
+  document.getElementById('btn-anim').classList.remove('running');
+}
+
+document.getElementById('btn-anim').addEventListener('click',()=>{
+  if(sites.length<3){sites=generate(20,document.getElementById('sel-dist').value);recompute();draw();}
+  if(animating){stopAnim();return;}
+  animating=true;
+  document.getElementById('anim-icon').textContent='■';
+  document.getElementById('anim-label').textContent='Stop';
+  document.getElementById('btn-anim').classList.add('running');
+  let step=0;
+  function loop(){lloydStep();step++;if(animating&&step<200)animId=requestAnimationFrame(loop);else stopAnim();}
+  loop();
+});
+
+window.addEventListener('resize',resize);
+resize();
+sites=generate(16,'random');recompute();draw();
+</script>
+</body>
+</html>
