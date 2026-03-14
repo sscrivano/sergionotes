@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Numeri Complessi - Lezione Interattiva</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #1a5f7a;
+            --secondary: #159895;
+            --accent: #57c5b6;
+            --dark: #002b36;
+            --light: #fdf6e3;
+            --warning: #cb4b16;
+            --success: #859900;
+        }
+        
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background: linear-gradient(135deg, var(--light) 0%, #eee8d5 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveGrid 20s linear infinite;
+        }
+        
+        @keyframes moveGrid {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5em;
+            font-weight: 900;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+        
+        nav {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Source Sans 3', sans-serif;
+        }
+        
+        .nav-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .nav-btn.active {
+            background: var(--accent);
+            color: var(--dark);
+        }
+        
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            margin: 40px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            animation: fadeIn 0.6s ease;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            color: var(--primary);
+            margin-bottom: 30px;
+            border-left: 5px solid var(--accent);
+            padding-left: 20px;
+        }
+        
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: var(--secondary);
+            margin: 30px 0 15px 0;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid var(--primary);
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .formula {
+            background: var(--light);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: 600;
+            border: 2px dashed var(--accent);
+            color: var(--primary);
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid var(--warning);
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+        
+        .example-title {
+            font-weight: 600;
+            color: var(--warning);
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .notes {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-left: 4px solid var(--success);
+        }
+        
+        .notes-title {
+            font-weight: 600;
+            color: var(--success);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        canvas {
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .graph-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .graph-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 15px;
+        }
+        
+        li {
+            margin: 10px 0;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, var(--accent) 0%, var(--accent) 100%);
+            background-repeat: no-repeat;
+            background-size: 100% 40%;
+            background-position: 0 80%;
+            padding: 2px 0;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+            justify-content: center;
+        }
+        
+        input[type="number"] {
+            padding: 10px;
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            width: 100px;
+            font-size: 1em;
+            font-family: 'Source Sans 3', sans-serif;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Source Sans 3', sans-serif;
+        }
+        
+        button:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .result {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 600;
+            text-align: center;
+            color: var(--dark);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px;
+            background: var(--dark);
+            color: white;
+            margin-top: 60px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .slide {
+                padding: 30px 20px;
+            }
+            
+            h2 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>I Numeri Complessi</h1>
+        <p class="subtitle">Un viaggio nel piano complesso: dalla definizione alle applicazioni</p>
+    </header>
+    
+    <nav id="navigation">
+        <button class="nav-btn active" onclick="showSlide(1)">Introduzione</button>
+        <button class="nav-btn" onclick="showSlide(2)">Definizione</button>
+        <button class="nav-btn" onclick="showSlide(3)">Piano di Gauss</button>
+        <button class="nav-btn" onclick="showSlide(4)">Operazioni</button>
+        <button class="nav-btn" onclick="showSlide(5)">Forma Trigonometrica</button>
+        <button class="nav-btn" onclick="showSlide(6)">Forma Esponenziale</button>
+        <button class="nav-btn" onclick="showSlide(7)">Esempi Pratici</button>
+    </nav>
+    
+    <div class="container">
+        <!-- SLIDE 1: INTRODUZIONE -->
+        <div class="slide active" id="slide1">
+            <h2>Introduzione ai Numeri Complessi</h2>
+            
+            <div class="definition">
+                <h3>Perché i numeri complessi?</h3>
+                <p>I numeri reali non sono sufficienti per risolvere tutte le equazioni algebriche. Ad esempio, l'equazione:</p>
+                <div class="formula">x² + 1 = 0</div>
+                <p>non ha soluzioni nell'insieme dei numeri reali ℝ, poiché nessun numero reale elevato al quadrato può dare -1.</p>
+            </div>
+            
+            <h3>L'unità immaginaria</h3>
+            <p>Introduciamo un nuovo numero, chiamato <span class="highlight">unità immaginaria</span>, indicato con <strong>i</strong>, definito dalla proprietà:</p>
+            <div class="formula">i² = -1</div>
+            <p>Da questa proprietà fondamentale nascono tutti i numeri complessi.</p>
+            
+            <div class="notes">
+                <div class="notes-title">📝 Appunti per gli studenti</div>
+                <ul>
+                    <li>L'unità immaginaria <strong>i</strong> è un concetto astratto ma fondamentale</li>
+                    <li>Non cercare di "immaginare" i nel senso comune: è una definizione matematica</li>
+                    <li>I numeri complessi estendono i numeri reali, non li sostituiscono</li>
+                    <li>Applicazioni: elettrotecnica, fisica quantistica, ingegneria, elaborazione segnali</li>
+                </ul>
+            </div>
+            
+            <h3>Storia e sviluppo</h3>
+            <p>I numeri complessi furono sviluppati nel XVI secolo da matematici italiani come Cardano e Bombelli durante lo studio delle equazioni cubiche. Il termine "immaginario" fu coniato da Cartesio, inizialmente con connotazione negativa.</p>
+        </div>
+        
+        <!-- SLIDE 2: DEFINIZIONE -->
+        <div class="slide" id="slide2">
+            <h2>Definizione di Numero Complesso</h2>
+            
+            <div class="definition">
+                <h3>Definizione formale</h3>
+                <p>Un <strong>numero complesso</strong> z è un'espressione della forma:</p>
+                <div class="formula">z = a + bi</div>
+                <p>dove:</p>
+                <ul>
+                    <li><strong>a</strong> è la <span class="highlight">parte reale</span> di z, indicata con Re(z)</li>
+                    <li><strong>b</strong> è la <span class="highlight">parte immaginaria</span> di z, indicata con Im(z)</li>
+                    <li><strong>i</strong> è l'unità immaginaria (i² = -1)</li>
+                    <li>a, b ∈ ℝ (sono numeri reali)</li>
+                </ul>
+            </div>
+            
+            <h3>L'insieme dei numeri complessi ℂ</h3>
+            <p>L'insieme di tutti i numeri complessi si indica con <strong>ℂ</strong>:</p>
+            <div class="formula">ℂ = {a + bi | a, b ∈ ℝ}</div>
+            
+            <div class="example">
+                <div class="example-title">Esempio 1: Numeri complessi</div>
+                <ul>
+                    <li>z₁ = 3 + 4i → Re(z₁) = 3, Im(z₁) = 4</li>
+                    <li>z₂ = -2 + 5i → Re(z₂) = -2, Im(z₂) = 5</li>
+                    <li>z₃ = 7 + 0i = 7 → numero reale puro</li>
+                    <li>z₄ = 0 + 3i = 3i → numero immaginario puro</li>
+                </ul>
+            </div>
+            
+            <h3>Complesso coniugato</h3>
+            <p>Il <strong>complesso coniugato</strong> di z = a + bi è:</p>
+            <div class="formula">z̄ = a - bi</div>
+            <p>Si ottiene cambiando il segno della parte immaginaria.</p>
+            
+            <div class="notes">
+                <div class="notes-title">📝 Appunti per gli studenti</div>
+                <ul>
+                    <li>Ogni numero reale è anche un numero complesso (con b = 0)</li>
+                    <li>Quindi ℝ ⊂ ℂ (i reali sono un sottoinsieme dei complessi)</li>
+                    <li>Due numeri complessi sono uguali se e solo se hanno stessa parte reale e stessa parte immaginaria</li>
+                    <li>Il coniugato è importante per molte operazioni, specialmente la divisione</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- SLIDE 3: PIANO DI GAUSS -->
+        <div class="slide" id="slide3">
+            <h2>Il Piano di Gauss (Piano Complesso)</h2>
+            
+            <div class="definition">
+                <h3>Rappresentazione geometrica</h3>
+                <p>I numeri complessi possono essere rappresentati come punti o vettori nel <strong>piano di Gauss</strong> (o piano complesso o piano di Argand-Gauss):</p>
+                <ul>
+                    <li><strong>Asse orizzontale (asse reale)</strong>: rappresenta la parte reale</li>
+                    <li><strong>Asse verticale (asse immaginario)</strong>: rappresenta la parte immaginaria</li>
+                    <li>Il numero z = a + bi corrisponde al punto (a, b)</li>
+                </ul>
+            </div>
+            
+            <div class="graph-container">
+                <div class="graph-title">Piano di Gauss con esempi di numeri complessi</div>
+                <canvas id="gaussPlane" width="600" height="600"></canvas>
+            </div>
+            
+            <h3>Modulo di un numero complesso</h3>
+            <p>Il <strong>modulo</strong> (o valore assoluto) di z = a + bi è la distanza dall'origine:</p>
+            <div class="formula">|z| = √(a² + b²)</div>
+            
+            <h3>Argomento di un numero complesso</h3>
+            <p>L'<strong>argomento</strong> di z è l'angolo θ che il vettore z forma con l'asse reale positivo:</p>
+            <div class="formula">arg(z) = θ = arctan(b/a)</div>
+            <p>L'argomento è definito a meno di multipli di 2π.</p>
+            
+            <div class="example">
+                <div class="example-title">Esempio 2: Modulo e argomento</div>
+                <p>Sia z = 3 + 4i</p>
+                <ul>
+                    <li>Modulo: |z| = √(3² + 4²) = √(9 + 16) = √25 = 5</li>
+                    <li>Argomento: θ = arctan(4/3) ≈ 0.927 radianti ≈ 53.13°</li>
+                </ul>
+            </div>
+            
+            <div class="notes">
+                <div class="notes-title">📝 Appunti per gli studenti</div>
+                <ul>
+                    <li>Il piano di Gauss permette di "vedere" i numeri complessi</li>
+                    <li>Il modulo è sempre un numero reale non negativo</li>
+                    <li>L'argomento si misura in radianti (o gradi)</li>
+                    <li>Attenzione ai quadranti quando si calcola l'argomento!</li>
+                    <li>Per z = 0, il modulo è 0 e l'argomento è indeterminato</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- SLIDE 4: OPERAZIONI -->
+        <div class="slide" id="slide4">
+            <h2>Operazioni con i Numeri Complessi</h2>
+            
+            <h3>1. Addizione</h3>
+            <p>Dati z₁ = a + bi e z₂ = c + di:</p>
+            <div class="formula">z₁ + z₂ = (a + c) + (b + d)i</div>
+            <p>Si sommano separatamente le parti reali e le parti immaginarie.</p>
+            
+            <div class="example">
+                <div class="example-title">Esempio 3: Addizione</div>
+                <p>(3 + 4i) + (2 - 5i) = (3 + 2) + (4 - 5)i = 5 - i</p>
+            </div>
+            
+            <h3>2. Sottrazione</h3>
+            <div class="formula">z₁ - z₂ = (a - c) + (b - d)i</div>
+            
+            <div class="example">
+                <div class="example-title">Esempio 4: Sottrazione</div>
+                <p>(3 + 4i) - (2 - 5i) = (3 - 2) + (4 - (-5))i = 1 + 9i</p>
+            </div>
+            
+            <h3>3. Moltiplicazione</h3>
+            <p>Si applica la proprietà distributiva ricordando che i² = -1:</p>
+            <div class="formula">z₁ · z₂ = (a + bi)(c + di) = ac + adi + bci + bdi² = (ac - bd) + (ad + bc)i</div>
+            
+            <div class="example">
+                <div class="example-title">Esempio 5: Moltiplicazione</div>
+                <p>(3 + 4i)(2 - 5i) = 6 - 15i + 8i - 20i² = 6 - 7i - 20(-1) = 6 - 7i + 20 = 26 - 7i</p>
+            </div>
+            
+            <h3>4. Divisione</h3>
+            <p>Per dividere, si moltiplica numeratore e denominatore per il coniugato del denominatore:</p>
+            <div class="formula">z₁/z₂ = (a + bi)/(c + di) · (c - di)/(c - di) = [(ac + bd) + (bc - ad)i]/(c² + d²)</div>
+            
+            <div class="example">
+                <div class="example-title">Esempio 6: Divisione</div>
+                <p>(3 + 4i)/(2 - i) = (3 + 4i)/(2 - i) · (2 + i)/(2 + i) = (6 + 3i + 8i + 4i²)/(4 - i²) = (6 + 11i - 4)/(4 + 1) = (2 + 11i)/5 = 2/5 + 11i/5</p>
+            </div>
+            
+            <div class="graph-container">
+                <div class="graph-title">Visualizzazione geometrica delle operazioni</div>
+                <canvas id="operationsPlane" width="600" height="600"></canvas>
+            </div>
+            
+            <div class="notes">
+                <div class="notes-title">📝 Appunti per gli studenti</div>
+                <ul>
+                    <li>Addizione e sottrazione: interpretazione geometrica come somma/differenza di vettori</li>
+                    <li>Moltiplicazione: i moduli si moltiplicano, gli argomenti si sommano</li>
+                    <li>Divisione: i moduli si dividono, gli argomenti si sottraggono</li>
+                    <li>Il coniugato è fondamentale per la divisione</li>
+                    <li>Proprietà: commutativa, associativa, distributiva</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- SLIDE 5: FORMA TRIGONOMETRICA -->
+        <div class="slide" id="slide5">
+            <h2>Forma Trigonometrica (o Polare)</h2>
+            
+            <div class="definition">
+                <h3>Definizione</h3>
+                <p>Dato z = a + bi con modulo ρ = |z| e argomento θ = arg(z), la forma trigonometrica è:</p>
+                <div class="formula">z = ρ(cos θ + i sin θ)</div>
+                <p>dove:</p>
+                <ul>
+                    <li>ρ = √(a² + b²)</li>
+                    <li>a = ρ cos θ</li>
+                    <li>b = ρ sin θ</li>
+                </ul>
+            </div>
+            
+            <h3>Conversione tra forme</h3>
+            <table>
+                <tr>
+                    <th>Da forma algebrica a trigonometrica</th>
+                    <th>Da forma trigonometrica ad algebrica</th>
+                </tr>
+                <tr>
+                    <td>
+                        z = a + bi<br>
+                        ρ = √(a² + b²)<br>
+                        θ = arctan(b/a)
+                    </td>
+                    <td>
+                        z = ρ(cos θ + i sin θ)<br>
+                        a = ρ cos θ<br>
+                        b = ρ sin θ
+                    </td>
+                </tr>
+            </table>
+            
+            <div class="example">
+                <div class="example-title">Esempio 7: Conversione in forma trigonometrica</div>
+                <p>Convertire z = 1 + i√3 in forma trigonometrica:</p>
+                <ul>
+                    <li>ρ = √(1² + (√3)²) = √(1 + 3) = √4 = 2</li>
+                    <li>θ = arctan(√3/1) = arctan(√3) = π/3 (60°)</li>
+                    <li>Quindi: z = 2(cos(π/3) + i sin(π/3))</li>
+                </ul>
+            </div>
+            
+            <h3>Formula di De Moivre</h3>
+            <p>Per calcolare potenze di numeri complessi in forma trigonometrica:</p>
+            <div class="formula">z^n = [ρ(cos θ + i sin θ)]^n = ρ^n(cos(nθ) + i sin(nθ))</div>
+            
+            <div class="example">
+                <div class="example-title">Esempio 8: Applicazione Formula di De Moivre</div>
+                <p>Calcolare (1 + i)⁸:</p>
+                <ul>
+                    <li>Convertiamo: 1 + i = √2(cos(π/4) + i sin(π/4))</li>
+                    <li>(1 + i)⁸ = (√2)⁸(cos(8π/4) + i sin(8π/4)) = 16(cos(2π) + i sin(2π)) = 16(1 + 0i) = 16</li>
+                </ul>
+            </div>
+            
+            <div class="graph-container">
+                <div class="graph-title">Rappresentazione forma trigonometrica</div>
+                <canvas id="trigForm" width="600" height="600"></canvas>
+            </div>
+            
+            <div class="notes">
+                <div class="notes-title">📝 Appunti per gli studenti</div>
+                <ul>
+                    <li>La forma trigonometrica è particolarmente utile per moltiplicazioni e potenze</li>
+                    <li>In forma trigonometrica si vede chiaramente il modulo e l'argomento</li>
+                    <li>La formula di De Moivre semplifica enormemente il calcolo di potenze</li>
+                    <li>Attenzione al quadrante quando si calcola θ!</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- SLIDE 6: FORMA ESPONENZIALE -->
+        <div class="slide" id="slide6">
+            <h2>Forma Esponenziale (Formula di Eulero)</h2>
+            
+            <div class="definition">
+                <h3>Formula di Eulero</h3>
+                <p>Una delle formule più belle della matematica collega esponenziali e funzioni trigonometriche:</p>
+                <div class="formula">e^(iθ) = cos θ + i sin θ</div>
+                <p>Da questa formula, un numero complesso z = ρ(cos θ + i sin θ) può essere scritto come:</p>
+                <div class="formula">z = ρe^(iθ)</div>
+            </div>
+            
+            <h3>Caso speciale: Formula di Eulero con θ = π</h3>
+            <p>Sostituendo θ = π nella formula di Eulero:</p>
+            <div class="formula">e^(iπ) = cos π + i sin π = -1 + 0i = -1</div>
+            <p>Da cui la famosa identità di Eulero:</p>
+            <div class="formula" style="font-size: 1.6em;">e^(iπ) + 1 = 0</div>
+            <p>Questa formula collega i cinque numeri più importanti della matematica: e, i, π, 1, 0</p>
+            
+            <h3>Operazioni in forma esponenziale</h3>
+            <p><strong>Moltiplicazione:</strong></p>
+            <div class="formula">z₁ · z₂ = ρ₁e^(iθ₁) · ρ₂e^(iθ₂) = ρ₁ρ₂e^(i(θ₁+θ₂))</div>
+            
+            <p><strong>Divisione:</strong></p>
+            <div class="formula">z₁/z₂ = ρ₁e^(iθ₁) / ρ₂e^(iθ₂) = (ρ₁/ρ₂)e^(i(θ₁-θ₂))</div>
+            
+            <p><strong>Potenza:</strong></p>
+            <div class="formula">z^n = (ρe^(iθ))^n = ρ^n e^(inθ)</div>
+            
+            <div class="example">
+                <div class="example-title">Esempio 9: Operazioni in forma esponenziale</div>
+                <p>Siano z₁ = 2e^(iπ/6) e z₂ = 3e^(iπ/4)</p>
+                <ul>
+                    <li>z₁ · z₂ = 2·3 · e^(i(π/6 + π/4)) = 6e^(i5π/12)</li>
+                    <li>z₁/z₂ = (2/3)e^(i(π/6 - π/4)) = (2/3)e^(-iπ/12)</li>
+                    <li>z₁³ = 2³e^(i3π/6) = 8e^(iπ/2) = 8i</li>
+                </ul>
+            </div>
+            
+            <h3>Radici n-esime</h3>
+            <p>Le radici n-esime di z = ρe^(iθ) sono:</p>
+            <div class="formula">w_k = ρ^(1/n) · e^(i(θ + 2πk)/n), k = 0, 1, 2, ..., n-1</div>
+            
+            <div class="example">
+                <div class="example-title">Esempio 10: Radici cubiche di -8</div>
+                <p>Troviamo le radici cubiche di -8:</p>
+                <ul>
+                    <li>-8 = 8e^(iπ) (forma esponenziale)</li>
+                    <li>w₀ = 8^(1/3) · e^(iπ/3) = 2e^(iπ/3) = 2(1/2 + i√3/2) = 1 + i√3</li>
+                    <li>w₁ = 2e^(i(π + 2π)/3) = 2e^(iπ) = -2</li>
+                    <li>w₂ = 2e^(i(π + 4π)/3) = 2e^(i5π/3) = 2(1/2 - i√3/2) = 1 - i√3</li>
+                </ul>
+            </div>
+            
+            <div class="graph-container">
+                <div class="graph-title">Radici cubiche di -8 nel piano complesso</div>
+                <canvas id="roots" width="600" height="600"></canvas>
+            </div>
+            
+            <div class="notes">
+                <div class="notes-title">📝 Appunti per gli studenti</div>
+                <ul>
+                    <li>La forma esponenziale è la più compatta e elegante</li>
+                    <li>È particolarmente utile in fisica e ingegneria</li>
+                    <li>Le radici n-esime sono sempre n valori distinti, equidistanti su una circonferenza</li>
+                    <li>La formula di Eulero è fondamentale in analisi complessa</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- SLIDE 7: ESEMPI PRATICI -->
+        <div class="slide" id="slide7">
+            <h2>Esempi Pratici e Applicazioni</h2>
+            
+            <div class="interactive-demo">
+                <h3>Calcolatrice Interattiva per Numeri Complessi</h3>
+                <p>Inserisci due numeri complessi e visualizza le operazioni:</p>
+                
+                <div class="controls">
+                    <div>
+                        <label>z₁: </label>
+                        <input type="number" id="z1Real" value="3" step="0.1"> + 
+                        <input type="number" id="z1Imag" value="4" step="0.1">i
+                    </div>
+                    <div>
+                        <label>z₂: </label>
+                        <input type="number" id="z2Real" value="1" step="0.1"> + 
+                        <input type="number" id="z2Imag" value="2" step="0.1">i
+                    </div>
+                    <button onclick="calculate()">Calcola</button>
+                </div>
+                
+                <div id="results"></div>
+                <canvas id="interactive" width="600" height="600" style="margin-top: 20px;"></canvas>
+            </div>
+            
+            <h3>Applicazioni Reali dei Numeri Complessi</h3>
+            
+            <div class="example">
+                <div class="example-title">1. Elettrotecnica - Impedenza</div>
+                <p>L'impedenza di un circuito AC è un numero complesso:</p>
+                <ul>
+                    <li>Z = R + iX, dove R è la resistenza e X la reattanza</li>
+                    <li>Per un circuito con R = 30Ω e L = 0.1H a f = 50Hz:</li>
+                    <li>X_L = 2πfL = 2π(50)(0.1) ≈ 31.4Ω</li>
+                    <li>Z = 30 + 31.4i Ω</li>
+                    <li>|Z| = √(30² + 31.4²) ≈ 43.4Ω</li>
+                </ul>
+            </div>
+            
+            <div class="example">
+                <div class="example-title">2. Fisica - Oscillazioni</div>
+                <p>Un'onda può essere rappresentata come:</p>
+                <ul>
+                    <li>ψ(x,t) = Ae^(i(kx - ωt)) dove A è l'ampiezza</li>
+                    <li>La parte reale rappresenta l'oscillazione fisica</li>
+                    <li>Facilita enormemente i calcoli con onde e oscillazioni</li>
+                </ul>
+            </div>
+            
+            <div class="example">
+                <div class="example-title">3. Elaborazione dei Segnali - Trasformata di Fourier</div>
+                <p>La trasformata di Fourier usa i numeri complessi:</p>
+                <ul>
+                    <li>F(ω) = ∫f(t)e^(-iωt)dt</li>
+                    <li>Permette di analizzare segnali nel dominio della frequenza</li>
+                    <li>Applicazioni: compressione audio/video, telecomunicazioni</li>
+                </ul>
+            </div>
+            
+            <div class="example">
+                <div class="example-title">4. Frattali - Insieme di Mandelbrot</div>
+                <p>L'insieme di Mandelbrot è definito tramite iterazione di numeri complessi:</p>
+                <ul>
+                    <li>z_{n+1} = z_n² + c</li>
+                    <li>Dove c è un numero complesso costante</li>
+                    <li>Un punto c appartiene all'insieme se la sequenza rimane limitata</li>
+                </ul>
+            </div>
+            
+            <h3>Tabella Riassuntiva delle Forme</h3>
+            <table>
+                <tr>
+                    <th>Forma</th>
+                    <th>Notazione</th>
+                    <th>Quando usarla</th>
+                </tr>
+                <tr>
+                    <td><strong>Algebrica</strong></td>
+                    <td>z = a + bi</td>
+                    <td>Addizione, sottrazione, equazioni</td>
+                </tr>
+                <tr>
+                    <td><strong>Trigonometrica</strong></td>
+                    <td>z = ρ(cos θ + i sin θ)</td>
+                    <td>Moltiplicazione, divisione, potenze</td>
+                </tr>
+                <tr>
+                    <td><strong>Esponenziale</strong></td>
+                    <td>z = ρe^(iθ)</td>
+                    <td>Calcoli avanzati, fisica, ingegneria</td>
+                </tr>
+            </table>
+            
+            <div class="notes">
+                <div class="notes-title">📝 Appunti per gli studenti - Consigli finali</div>
+                <ul>
+                    <li><strong>Pratica:</strong> Esercitati sulle conversioni tra le diverse forme</li>
+                    <li><strong>Visualizza:</strong> Disegna sempre i numeri complessi sul piano di Gauss</li>
+                    <li><strong>Verifica:</strong> Controlla i risultati convertendo tra forme diverse</li>
+                    <li><strong>Comprendi:</strong> I numeri complessi non sono "complicati", sono "completi"</li>
+                    <li><strong>Applicazioni:</strong> Cerca esempi nelle tue materie di studio (fisica, ingegneria)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2026 - Lezione sui Numeri Complessi</p>
+        <p>Matematica per le superiori e l'università</p>
+    </footer>
+    
+    <script>
+        // NAVIGAZIONE TRA SLIDE
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const buttons = document.querySelectorAll('.nav-btn');
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById('slide' + n).classList.add('active');
+            buttons[n - 1].classList.add('active');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // PIANO DI GAUSS (SLIDE 3)
+        function drawGaussPlane() {
+            const canvas = document.getElementById('gaussPlane');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const scale = 50;
+            
+            // Sfondo
+            ctx.fillStyle = '#fdfff5';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Griglia
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            for (let i = -5; i <= 5; i++) {
+                if (i !== 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(centerX + i * scale, 0);
+                    ctx.lineTo(centerX + i * scale, height);
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(0, centerY + i * scale);
+                    ctx.lineTo(width, centerY + i * scale);
+                    ctx.stroke();
+                }
+            }
+            
+            // Assi
+            ctx.strokeStyle = '#1a5f7a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, height);
+            ctx.stroke();
+            
+            // Etichette assi
+            ctx.fillStyle = '#1a5f7a';
+            ctx.font = 'bold 16px Source Sans 3';
+            ctx.fillText('Re', width - 30, centerY - 10);
+            ctx.fillText('Im', centerX + 10, 20);
+            
+            // Numeri sull'asse
+            ctx.font = '12px Source Sans 3';
+            for (let i = -5; i <= 5; i++) {
+                if (i !== 0) {
+                    ctx.fillText(i, centerX + i * scale - 5, centerY + 20);
+                    ctx.fillText(i + 'i', centerX + 10, centerY - i * scale + 5);
+                }
+            }
+            
+            // Esempi di numeri complessi
+            const complexNumbers = [
+                { real: 3, imag: 4, label: '3+4i', color: '#cb4b16' },
+                { real: -2, imag: 3, label: '-2+3i', color: '#159895' },
+                { real: 4, imag: -2, label: '4-2i', color: '#859900' },
+                { real: -3, imag: -3, label: '-3-3i', color: '#6c71c4' }
+            ];
+            
+            complexNumbers.forEach(z => {
+                const x = centerX + z.real * scale;
+                const y = centerY - z.imag * scale;
+                
+                // Vettore dall'origine
+                ctx.strokeStyle = z.color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                
+                // Punto
+                ctx.fillStyle = z.color;
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Etichetta
+                ctx.fillStyle = z.color;
+                ctx.font = 'bold 14px Source Sans 3';
+                ctx.fillText(z.label, x + 10, y - 10);
+            });
+        }
+        
+        // OPERAZIONI (SLIDE 4)
+        function drawOperationsPlane() {
+            const canvas = document.getElementById('operationsPlane');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const scale = 60;
+            
+            // Sfondo
+            ctx.fillStyle = '#fdfff5';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Griglia leggera
+            ctx.strokeStyle = '#f0f0f0';
+            ctx.lineWidth = 1;
+            for (let i = -5; i <= 5; i++) {
+                ctx.beginPath();
+                ctx.moveTo(centerX + i * scale, 0);
+                ctx.lineTo(centerX + i * scale, height);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, centerY + i * scale);
+                ctx.lineTo(width, centerY + i * scale);
+                ctx.stroke();
+            }
+            
+            // Assi
+            ctx.strokeStyle = '#1a5f7a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, height);
+            ctx.stroke();
+            
+            // z1 = 2 + 3i
+            const z1 = { real: 2, imag: 3 };
+            const x1 = centerX + z1.real * scale;
+            const y1 = centerY - z1.imag * scale;
+            
+            // z2 = 1 + 1i
+            const z2 = { real: 1, imag: 1 };
+            const x2 = centerX + z2.real * scale;
+            const y2 = centerY - z2.imag * scale;
+            
+            // z1 + z2 = 3 + 4i
+            const zSum = { real: z1.real + z2.real, imag: z1.imag + z2.imag };
+            const xSum = centerX + zSum.real * scale;
+            const ySum = centerY - zSum.imag * scale;
+            
+            // Disegna z1
+            ctx.strokeStyle = '#cb4b16';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(x1, y1);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#cb4b16';
+            ctx.beginPath();
+            ctx.arc(x1, y1, 7, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.font = 'bold 16px Source Sans 3';
+            ctx.fillText('z₁ = 2+3i', x1 + 10, y1 - 10);
+            
+            // Disegna z2
+            ctx.strokeStyle = '#159895';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#159895';
+            ctx.beginPath();
+            ctx.arc(x2, y2, 7, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.fillText('z₂ = 1+i', x2 + 10, y2 + 20);
+            
+            // Disegna somma (parallelogramma)
+            ctx.strokeStyle = '#859900';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(xSum, ySum);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(xSum, ySum);
+            ctx.stroke();
+            
+            ctx.setLineDash([]);
+            ctx.strokeStyle = '#859900';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(xSum, ySum);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#859900';
+            ctx.beginPath();
+            ctx.arc(xSum, ySum, 7, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.font = 'bold 16px Source Sans 3';
+            ctx.fillText('z₁+z₂ = 3+4i', xSum + 10, ySum);
+        }
+        
+        // FORMA TRIGONOMETRICA (SLIDE 5)
+        function drawTrigForm() {
+            const canvas = document.getElementById('trigForm');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const scale = 80;
+            
+            // Sfondo
+            ctx.fillStyle = '#fdfff5';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Assi
+            ctx.strokeStyle = '#1a5f7a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, height);
+            ctx.stroke();
+            
+            // Etichette
+            ctx.fillStyle = '#1a5f7a';
+            ctx.font = 'bold 16px Source Sans 3';
+            ctx.fillText('Re', width - 30, centerY - 10);
+            ctx.fillText('Im', centerX + 10, 20);
+            
+            // z = 3 + 3i
+            const z = { real: 3, imag: 3 };
+            const rho = Math.sqrt(z.real * z.real + z.imag * z.imag);
+            const theta = Math.atan2(z.imag, z.real);
+            
+            const x = centerX + z.real * scale;
+            const y = centerY - z.imag * scale;
+            
+            // Circonferenza del modulo
+            ctx.strokeStyle = '#57c5b6';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, rho * scale, 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Vettore z
+            ctx.strokeStyle = '#cb4b16';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            
+            // Punto z
+            ctx.fillStyle = '#cb4b16';
+            ctx.beginPath();
+            ctx.arc(x, y, 7, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Arco dell'angolo
+            ctx.strokeStyle = '#159895';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 60, 0, -theta, true);
+            ctx.stroke();
+            
+            // Proiezioni
+            ctx.strokeStyle = '#6c71c4';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, centerY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(centerX, y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Etichette
+            ctx.fillStyle = '#cb4b16';
+            ctx.font = 'bold 16px Source Sans 3';
+            ctx.fillText('z = 3+3i', x + 15, y - 10);
+            
+            ctx.fillStyle = '#159895';
+            ctx.font = '14px Source Sans 3';
+            ctx.fillText('θ = π/4', centerX + 70, centerY - 20);
+            
+            ctx.fillStyle = '#57c5b6';
+            ctx.fillText('ρ = 3√2', centerX + rho * scale / 2, centerY - 100);
+            
+            ctx.fillStyle = '#6c71c4';
+            ctx.fillText('a = ρcos(θ)', x + 10, centerY + 30);
+            ctx.fillText('b = ρsin(θ)', centerX - 80, y);
+        }
+        
+        // RADICI (SLIDE 6)
+        function drawRoots() {
+            const canvas = document.getElementById('roots');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const scale = 100;
+            
+            // Sfondo
+            ctx.fillStyle = '#fdfff5';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Griglia
+            ctx.strokeStyle = '#f0f0f0';
+            ctx.lineWidth = 1;
+            for (let i = -3; i <= 3; i++) {
+                if (i !== 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(centerX + i * scale, 0);
+                    ctx.lineTo(centerX + i * scale, height);
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(0, centerY + i * scale);
+                    ctx.lineTo(width, centerY + i * scale);
+                    ctx.stroke();
+                }
+            }
+            
+            // Assi
+            ctx.strokeStyle = '#1a5f7a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, height);
+            ctx.stroke();
+            
+            // Circonferenza
+            ctx.strokeStyle = '#57c5b6';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 2 * scale, 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Radici cubiche di -8
+            const roots = [
+                { real: 1, imag: Math.sqrt(3), label: 'w₀ = 1+i√3', color: '#cb4b16' },
+                { real: -2, imag: 0, label: 'w₁ = -2', color: '#159895' },
+                { real: 1, imag: -Math.sqrt(3), label: 'w₂ = 1-i√3', color: '#859900' }
+            ];
+            
+            roots.forEach(root => {
+                const x = centerX + root.real * scale;
+                const y = centerY - root.imag * scale;
+                
+                // Vettore
+                ctx.strokeStyle = root.color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                
+                // Punto
+                ctx.fillStyle = root.color;
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Etichetta
+                ctx.font = 'bold 14px Source Sans 3';
+                ctx.fillText(root.label, x + 15, y);
+            });
+            
+            // Punto -8
+            const x8 = centerX - 2 * scale;
+            const y8 = centerY;
+            
+            ctx.fillStyle = '#6c71c4';
+            ctx.beginPath();
+            ctx.arc(x8, y8, 10, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.fillStyle = '#6c71c4';
+            ctx.font = 'bold 16px Source Sans 3';
+            ctx.fillText('-8', x8 + 15, y8 + 5);
+            
+            // Titolo
+            ctx.fillStyle = '#1a5f7a';
+            ctx.font = 'bold 18px Source Sans 3';
+            ctx.fillText('Le tre radici cubiche sono equidistanti (120° tra loro)', 50, 40);
+        }
+        
+        // CALCOLATRICE INTERATTIVA
+        function calculate() {
+            const z1Real = parseFloat(document.getElementById('z1Real').value);
+            const z1Imag = parseFloat(document.getElementById('z1Imag').value);
+            const z2Real = parseFloat(document.getElementById('z2Real').value);
+            const z2Imag = parseFloat(document.getElementById('z2Imag').value);
+            
+            // Calcoli
+            const sumReal = z1Real + z2Real;
+            const sumImag = z1Imag + z2Imag;
+            
+            const diffReal = z1Real - z2Real;
+            const diffImag = z1Imag - z2Imag;
+            
+            const prodReal = z1Real * z2Real - z1Imag * z2Imag;
+            const prodImag = z1Real * z2Imag + z1Imag * z2Real;
+            
+            const denom = z2Real * z2Real + z2Imag * z2Imag;
+            const divReal = (z1Real * z2Real + z1Imag * z2Imag) / denom;
+            const divImag = (z1Imag * z2Real - z1Real * z2Imag) / denom;
+            
+            const mod1 = Math.sqrt(z1Real * z1Real + z1Imag * z1Imag);
+            const mod2 = Math.sqrt(z2Real * z2Real + z2Imag * z2Imag);
+            
+            const arg1 = Math.atan2(z1Imag, z1Real);
+            const arg2 = Math.atan2(z2Imag, z2Real);
+            
+            // Formattazione
+            const formatComplex = (re, im) => {
+                if (Math.abs(im) < 0.001) return re.toFixed(2);
+                if (Math.abs(re) < 0.001) return `${im.toFixed(2)}i`;
+                const sign = im >= 0 ? '+' : '';
+                return `${re.toFixed(2)} ${sign} ${im.toFixed(2)}i`;
+            };
+            
+            // Risultati
+            let html = '<div class="result">';
+            html += `<p><strong>z₁ + z₂ =</strong> ${formatComplex(sumReal, sumImag)}</p>`;
+            html += `<p><strong>z₁ - z₂ =</strong> ${formatComplex(diffReal, diffImag)}</p>`;
+            html += `<p><strong>z₁ × z₂ =</strong> ${formatComplex(prodReal, prodImag)}</p>`;
+            html += `<p><strong>z₁ / z₂ =</strong> ${formatComplex(divReal, divImag)}</p>`;
+            html += `<p><strong>|z₁| =</strong> ${mod1.toFixed(3)}, <strong>|z₂| =</strong> ${mod2.toFixed(3)}</p>`;
+            html += `<p><strong>arg(z₁) =</strong> ${(arg1 * 180 / Math.PI).toFixed(1)}°, <strong>arg(z₂) =</strong> ${(arg2 * 180 / Math.PI).toFixed(1)}°</p>`;
+            html += '</div>';
+            
+            document.getElementById('results').innerHTML = html;
+            
+            // Disegna
+            drawInteractive(z1Real, z1Imag, z2Real, z2Imag, sumReal, sumImag);
+        }
+        
+        function drawInteractive(z1Real, z1Imag, z2Real, z2Imag, sumReal, sumImag) {
+            const canvas = document.getElementById('interactive');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const scale = 40;
+            
+            // Sfondo
+            ctx.fillStyle = '#fdfff5';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Griglia
+            ctx.strokeStyle = '#e8e8e8';
+            ctx.lineWidth = 1;
+            for (let i = -7; i <= 7; i++) {
+                ctx.beginPath();
+                ctx.moveTo(centerX + i * scale, 0);
+                ctx.lineTo(centerX + i * scale, height);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, centerY + i * scale);
+                ctx.lineTo(width, centerY + i * scale);
+                ctx.stroke();
+            }
+            
+            // Assi
+            ctx.strokeStyle = '#1a5f7a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, height);
+            ctx.stroke();
+            
+            const x1 = centerX + z1Real * scale;
+            const y1 = centerY - z1Imag * scale;
+            const x2 = centerX + z2Real * scale;
+            const y2 = centerY - z2Imag * scale;
+            const xSum = centerX + sumReal * scale;
+            const ySum = centerY - sumImag * scale;
+            
+            // z1
+            ctx.strokeStyle = '#cb4b16';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(x1, y1);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#cb4b16';
+            ctx.beginPath();
+            ctx.arc(x1, y1, 6, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.font = 'bold 14px Source Sans 3';
+            ctx.fillText('z₁', x1 + 10, y1 - 10);
+            
+            // z2
+            ctx.strokeStyle = '#159895';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#159895';
+            ctx.beginPath();
+            ctx.arc(x2, y2, 6, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.fillText('z₂', x2 + 10, y2 + 20);
+            
+            // Somma (parallelogramma)
+            ctx.strokeStyle = '#a0a0a0';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(xSum, ySum);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(xSum, ySum);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // z1 + z2
+            ctx.strokeStyle = '#859900';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(xSum, ySum);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#859900';
+            ctx.beginPath();
+            ctx.arc(xSum, ySum, 6, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.font = 'bold 14px Source Sans 3';
+            ctx.fillText('z₁+z₂', xSum + 10, ySum);
+        }
+        
+        // Inizializzazione
+        window.onload = function() {
+            drawGaussPlane();
+            drawOperationsPlane();
+            drawTrigForm();
+            drawRoots();
+            calculate();
+        };
+    </script>
+</body>
+</html>
